@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 lower = -5
 upper = 5
-level = 5
+level = 4
 
 timestep = (upper-lower)/(2**level-1)
 t = np.arange(lower, upper+0.5*timestep, timestep)
@@ -43,13 +43,17 @@ psi_g2, x2 = wavelet_gaus2.wavefun(level = level)
 psi_g3, x3 = wavelet_gaus3.wavefun(level = level)
 psi_g4, x4 = wavelet_mexh.wavefun(level = level)
 
-myconv = np.convolve(signal_handle, psi_1st_st, 'same')
+myconv = np.convolve(signal_handle, -psi_1st, 'same')
 
 scale_use = np.array([scale])
 sampling_period=0.002
 cwtmatr, freqs = pywt.cwt(signal_handle, scale_use, 'gaus1', method='conv')  #小波分解
 # f = pywt.scale2frequency('gaus1', scale_use)/0.002
-f = pywt.central_frequency('gaus1')
+f = pywt.central_frequency('gaus4')
+f2 = pywt.scale2frequency('gaus4', 2)
+print(f)
+print(f2)
+
 '''
 plt.plot(t, psi_2nd,'-*', label = 'psi_2nd')
 plt.plot(t2, psi_t2,label = 'psi_t2')
