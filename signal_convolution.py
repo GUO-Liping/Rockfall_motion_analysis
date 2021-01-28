@@ -128,6 +128,10 @@ f = pywt.central_frequency('mexh')
 f2 = pywt.scale2frequency('gaus2',1)
 print(wavelet_gaus1.center_frequency)
 print(wavelet_mexh.bandwidth_frequency)
+print(len(myconv0))
+print(len(myconv1))
+print(len(myconv2))
+print(len(signal_handle))
 
 
 '''
