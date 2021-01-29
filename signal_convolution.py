@@ -67,40 +67,41 @@ def func_update_disp(para_time, para_disp, target_freq):
 
 def func_BinarySearch(source_array,target_array):
 	tail_index = int(len(source_array)/100)
-	para_dtw = dtw.dtw(source_array[tail_index:-tail_index], target_array[tail_index:-tail_index])
+	source = source_array[tail_index:-tail_index]
+	target = target_array[tail_index:-tail_index]
+	para_dtw = dtw.dtw(source, target)
 	Dist = para_dtw.distance
-	para_threshold = 100
+	para_threshold = 4
+
 	low = 0
 	height = np.amax(np.abs(source_array)) / np.amin(np.abs(target_array))
-
 	count = 0
-	while (Dist > para_threshold and count  <10):
-
-		source_max = np.amax(np.abs(source_array[tail_index:-tail_index]))
-		target_max = np.amax(np.abs(target_array[tail_index:-tail_index]))
+	while (Dist > para_threshold and count  <100):
 		mid = (low+height)/2
-
-		if target_max > source_max:
-			target_array = mid*target_array
-			height = mid
+		if np.amax(np.abs(source)) > np.amax(np.abs(mid*target)):
+			para_dtw = dtw.dtw(source, mid*target)
+			Dist = para_dtw.distance
+			low = mid
 			print('here')       
 			
-		elif target_max < source_max:
-			target_array = mid*target_array
-			low = mid
-			
+		elif np.amax(np.abs(source)) < np.amax(np.abs(mid*target)):
+			para_dtw = dtw.dtw(source, mid*target)
+			Dist = para_dtw.distance
+			height = mid
+			print('there') 			
 		else:
+			para_dtw = dtw.dtw(source, mid*target)
 			print('Mission accomplished!')
 		
 		count = count + 1
-		para_dtw = dtw.dtw(source_array[tail_index:-tail_index], target_array[tail_index:-tail_index])
-	Amp = mid
-	Dist = para_dtw.distance
+		
 		print('count = ',count)
 		print('low = ',low)
 		print('height = ',height)
-		print('Amp=', Amp)
+		print('Dist = ',Dist)
 
+	Amp = mid
+	Dist = para_dtw.distance
 	return Amp, Dist
 
 
@@ -119,7 +120,7 @@ xdefult = np.arange(-5,5+0.5*10/(2**10-1),10/(2**10-1))
 
 level = 4
 
-scale = 10
+scale = 5
 
 lower = -5 * scale
 upper = 5 * scale
