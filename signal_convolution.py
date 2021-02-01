@@ -202,9 +202,9 @@ if __name__ == '__main__':
 	signal_diff1st = diff_2point(time_updated, disp_updated)
 	signal_diff2nd = diff_2point(time_updated, signal_diff1st)
 	signal_time = time_updated
-	signal_handle = disp_updated
+	signal_handle = signal_diff2nd
 
-	scale = 5  # 小波函数尺度参数
+	scale = 15  # 小波函数尺度参数
 	lower = -5 * scale
 	upper = 5 * scale
 	
@@ -233,7 +233,8 @@ if __name__ == '__main__':
 	cwtmatr, freqs = pywt.cwt(signal_handle, scale_use, 'gaus1', method='conv')  #小波分解
 
 	Amp, EDist = func_BinarySearch_ED(signal_handle,myconv0, 1e-10)
-	print('The Euclidean distance between original signal and handled signal = ', EDist)	
+	print('The Euclidean distance between original signal and handled signal = ', EDist)
+
 	# Amp, DTWDist = func_BinarySearch_DTW(signal_handle,myconv0, 1e-5)
 	# print('The Dynamic Time Warping distance between original signal and handled signal = ', EDist)	
 	
@@ -248,7 +249,15 @@ if __name__ == '__main__':
 	#plt.plot(psi_1st, label = 'psi_1st')
 	#plt.plot(psi_1st_st,'-o', label = 'psi_1st_st')
 	#plt.plot(cwtmatr[0,:],label = 'cwtmatr[0,:]')
-	signal_smoothed = Amp*myconv0
+	signal_handled = Amp*myconv0
+	tail_index = int(len(signal_handle)/100)
+	handle = signal_handle[tail_index:-tail_index]
+	handled = signal_handled[tail_index:-tail_index]
+
+	SNR_before = func_SNR(handle)
+	SNR_after = func_SNR(handled)
+	print('SNR of the original signal is', SNR_before)
+	print('SNR of the handled signal is', SNR_after)
 	plt.plot(signal_time,signal_handle,label = 'signal_handle')
 	plt.plot(signal_time,Amp*myconv0,label = 'Amp*myconv0')
 	
