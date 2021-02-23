@@ -96,7 +96,7 @@ for i in [node.path for node in wp.get_level(max_level, 'freq')]:
 #第n层能量特征
 energy = []
 for i in re:
-    energy.append(pow(np.linalg.norm(i,ord=None),2))
+    energy.append(pow(np.linalg.norm(i,ord=2),2))
 
 
 # 创建一个点数为 8 x 6 的窗口, 并设置分辨率为 80像素/每英寸
