@@ -15,17 +15,17 @@ if __name__ == '__main__':
 	signal_time = time_updated
 	signal_handle = disp_updated
 
-	scale = 5.96806  # 小波函数尺度参数 T=0.094s, fs=500Hz
-	lower = -5 * scale
-	upper = 5 * scale
+	scale = 5.96853  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数
+	lower = -5 * scale # 这里取正负是因为本程序中的高斯函数对称轴为x=0
+	upper = 5 * scale  # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	
 	s = scale  # s是scale的缩写，方便后续公式的简洁
-	timestep = (upper-lower)/(scale*10)
+	timestep = (upper-lower)/(s*10)
 	t = np.arange(lower,upper+0.5*timestep,timestep)
 	
-	C = 1/np.sqrt(np.pi)
-	theta_t = C * np.exp(-t**2)
-	theta_st = C/np.sqrt(s) * np.exp(-t**2/(s**2))
+	C = 1/np.sqrt(np.pi)  # 正则化系数
+	theta_t = C * np.exp(-t**2)  # 一阶高斯母小波
+	theta_st = C/np.sqrt(s) * np.exp(-t**2/(s**2))  # 一阶高斯小波族
 	
 	C1 = np.sqrt(np.sqrt(2/np.pi))
 	psi_1st = C1 * (-2*t) * np.exp(-t**2)
@@ -74,22 +74,22 @@ if __name__ == '__main__':
 	# 柱子的宽度
 	width = 1
 	# 绘制柱状图, 每根柱子的颜色为紫罗兰色
-	# p2 = plt.bar(index, values, width, label="num", color="#87CEFA")
-	plt.plot(freqs, values, '*')
+	# plt.bar(index, values, width, label="num", color="#87CEFA")
 
-	signal_handled = myconv1
+	signal_handled = myconv0
 	tail_index = int(len(signal_handle)/100)
 	handle = signal_handle[tail_index:-tail_index]
 	handled = signal_handled[tail_index:-tail_index]
-
+	plt.plot(handle)
+	plt.plot(Amp*handled)
 	SNR_before = func_SNR(handle)
-	SNR_after = func_SNR(handled)
+	SNR_after = func_SNR(Amp*handled)
 	print('SNR of the original signal is', SNR_before)
 	print('SNR of the handled signal is', SNR_after)
 
 	# 绘制数值微分，小波微分结果
-	# plt.plot(signal_time,signal_handle,label = 'signal_handle')
-	# plt.plot(signal_time,Amp*myconv0,label = 'Amp*myconv0')
+	plt.plot(signal_time,signal_handle,label = 'signal_handle')
+	plt.plot(signal_time,Amp*myconv0,label = 'Amp*myconv0')
 
 	'''
 	# 绘制卷积运算、pywt计算结果
