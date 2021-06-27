@@ -15,7 +15,7 @@ if __name__ == '__main__':
 	signal_time = time_updated
 	signal_handle = disp_updated
 
-	scale = 5.96853  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数
+	scale = 10  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	lower = -5 * scale # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	upper = 5 * scale  # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 	#plt.plot(cwtmatr[0,:],label = 'cwtmatr[0,:]')
 
 	scale_use = np.array([1,2,4,8,16,32,64,128,256,512,1024])
-	scale_use = np.arange(1,30)
+	scale_use = np.arange(1,50,step=2)
 
 	cwtmatr, freqs = pywt.cwt(signal_handle, scale_use, 'gaus1', sampling_period=0.002, method='conv')  #小波分解
 
@@ -74,23 +74,23 @@ if __name__ == '__main__':
 	# 柱子的宽度
 	width = 1
 	# 绘制柱状图, 每根柱子的颜色为紫罗兰色
-	# plt.bar(index, values, width, label="num", color="#87CEFA")
+	plt.bar(index, values, width, label="num", color="#87CEFA")
 
 	signal_handled = myconv0
 	tail_index = int(len(signal_handle)/100)
 	handle = signal_handle[tail_index:-tail_index]
 	handled = signal_handled[tail_index:-tail_index]
-	plt.plot(handle)
-	plt.plot(Amp*handled)
+
 	SNR_before = func_SNR(handle)
 	SNR_after = func_SNR(Amp*handled)
 	print('SNR of the original signal is', SNR_before)
 	print('SNR of the handled signal is', SNR_after)
 
 	# 绘制数值微分，小波微分结果
-	plt.plot(signal_time,signal_handle,label = 'signal_handle')
-	plt.plot(signal_time,Amp*myconv0,label = 'Amp*myconv0')
-
+	cccc1 = Amp*myconv0
+	#plt.plot(signal_time,signal_handle,label = 'signal_handle')
+	#plt.plot(signal_time,Amp*myconv0,label = 'Amp*myconv')
+	np.savetxt('AmpMyconv0', cccc1)
 	'''
 	# 绘制卷积运算、pywt计算结果
 	# 可以发现选择高斯小波家族时，计算结果差负号
