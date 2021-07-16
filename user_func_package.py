@@ -1,6 +1,24 @@
 #!/usr/bin/env python    
 #encoding: utf-8 
 import numpy as np
+import random
+
+
+# 该函数用于计算原始数据data的信噪比
+def func_SNR(data):
+	A_signal = np.max(data) - np.min(data)
+	sub_data = data[1:] - data[:-1]
+	A_noise = np.max(sub_data) - np.min(sub_data)
+	return 20*np.log10(A_signal/A_noise)
+
+
+# 用于给信号添加指定信噪比水平的噪声干扰
+def func_add_noise(signal, SNR):
+	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(signal))])
+	signal_added = signal + white_noise
+	k_gauss = np.sqrt()
+	use_noise = k_gauss * white_noise
+	return signal+use_noise
 
 
 # 该函数用于四舍五入取整函数，并取到整数位
@@ -56,14 +74,6 @@ def func_update_disp(para_time, para_disp, target_freq):
 	else:
 		print('最大采样频率与目标频率不为整数倍关系！')
 	return [time_update, disp_update]
-
-
-# 该函数用于计算原始数据data的信噪比
-def func_SNR(data):
-	A_signal = np.max(data) - np.min(data)
-	sub_data = data[1:] - data[:-1]
-	A_noise = np.maximum(np.abs(np.max(sub_data)),np.abs(np.min(sub_data)))
-	return 20*np.log10(A_signal/A_noise)
 
 
 # Dynamic Time Warping动态时间规划距离，用于时间序列相似性，不等长度数据序列
