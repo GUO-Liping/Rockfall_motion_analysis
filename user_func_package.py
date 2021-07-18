@@ -4,21 +4,126 @@ import numpy as np
 import random
 
 
+# 给出一个单自由度低阻尼体系动力学时程解析信号，参考《结构动力学》
+def func_analytical_signal(time_updated):
+	exam_t = time_updated
+	exam_m = 5
+	exam_k = 600
+	exam_xi = 0.08
+	exam_u0 = 0
+	exam_v0 = -12.5
+	exam_omega = np.sqrt(exam_k/exam_m)
+	exam_omega_D = exam_omega*np.sqrt(1-exam_xi**2)
+
+	exam_A = exam_u0
+	exam_B = (exam_v0+exam_u0*exam_xi*exam_omega)/exam_omega_D
+	exam_C = np.exp(-exam_xi*exam_omega*exam_t)
+
+	exam_ut = (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C
+	exam_vt = exam_ut*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D
+	exam_at = exam_vt*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D*(-exam_xi*exam_omega) - (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C*exam_omega_D**2
+
+	return exam_ut, exam_vt, exam_at
+
+
 # 该函数用于计算原始数据data的信噪比
 def func_SNR(data):
-	A_signal = np.max(data) - np.min(data)
-	sub_data = data[1:] - data[:-1]
-	A_noise = np.max(sub_data) - np.min(sub_data)
+	if len(data)%2==0:
+		A_signal = np.max(data) - np.min(data)
+		sub_data1 = data[::2]
+		sub_data11 = sub_data1[1:]
+		sub_data12 = sub_data1[:-1]
+		sub_data111 = (sub_data11 + sub_data12)/2
+
+		sub_data2 = data[1:-1:2]
+		sub_data = sub_data2 - sub_data111
+		A_noise = np.max(sub_data) - np.min(sub_data)
+
+	elif len(data)%2!=0:
+		A_signal = np.max(data) - np.min(data)
+		sub_data1 = data[::2]
+		sub_data11 = sub_data1[1:]
+		sub_data12 = sub_data1[:-1]
+		sub_data111 = (sub_data11 + sub_data12)/2
+
+		sub_data2 = data[1::2]
+		sub_data = sub_data2 - sub_data111
+		A_noise = np.max(sub_data) - np.min(sub_data)
+
+	else:
+		raise ValueError
 	return 20*np.log10(A_signal/A_noise)
 
 
+# 得到添加进入解析振动信号的噪声信噪比
+def func_get_SNR(analyze_Data, white_noise, tracking_Data):
+	SNR_analyze = func_SNR(analyze_Data)
+	SNR_tracking = func_SNR(tracking_Data)
+
+	up_snr = 10*SNR_analyze
+	low_snr = SNR_analyze/10
+	snr_test = (up_snr+low_snr)/2
+
+	err_snr = abs(SNR_analyze-SNR_tracking)
+	count = 0
+
+	while err_snr>1e-5 and count<500:
+		
+		if SNR_analyze>SNR_tracking:
+			up_snr = (up_snr+low_snr)/2
+
+		elif SNR_analyze<SNR_tracking:
+			low_snr = (up_snr+low_snr)/2
+		
+		else:
+			raise ValueError
+		snr_test = (up_snr+low_snr)/2
+		exam_uta = func_add_noise(analyze_Data, white_noise, snr_test)
+		SNR_analyze = func_SNR(exam_uta)
+		err_snr = abs(SNR_analyze-SNR_tracking)
+		count = count + 1
+	return snr_test
+
+
 # 用于给信号添加指定信噪比水平的噪声干扰
-def func_add_noise(signal, SNR):
-	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(signal))])
-	signal_added = signal + white_noise
-	k_gauss = np.sqrt()
+def func_add_noise(signal, white_noise, SNR):
+
+	A_signal = np.max(signal) - np.min(signal)
+	A_noise = np.max(white_noise) - np.min(white_noise)
+	k_gauss = A_signal/A_noise*np.sqrt(10**(-SNR/10))
 	use_noise = k_gauss * white_noise
 	return signal+use_noise
+
+
+def func_gauss_wave(data_array, scale):
+	lower = -5 * scale # 这里取正负是因为本程序中的高斯函数对称轴为x=0
+	upper = 5 * scale  # 这里取正负是因为本程序中的高斯函数对称轴为x=0
+	
+	s = scale  # s是scale的缩写，方便后续公式的简洁
+	timestep = (upper-lower)/(s*10)
+	t = np.arange(lower,upper+0.5*timestep,timestep)
+	
+	C = 1/np.sqrt(np.pi)  # 正则化系数
+	theta_t = C * np.exp(-t**2)  # 一阶高斯母小波
+	theta_st = C/np.sqrt(s) * np.exp(-t**2/(s**2))  # 一阶高斯小波族
+	
+	C1 = np.sqrt(np.sqrt(2/np.pi))
+	psi_1st = C1 * (-2*t) * np.exp(-t**2)
+	psi_1st_st = (-1)**1*C1 * np.exp(-t**2/s**2) * (2*t/s) / (np.sqrt(s))
+	
+	C2 = np.sqrt(np.sqrt(2/(9*np.pi)))
+	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)
+	psi_2nd_st = (-1)**2*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))
+
+	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
+	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
+	data_conv2 = np.convolve(data_array, psi_2nd_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
+	
+	Amp0_data, ED0_data = func_BinarySearch_ED(data_array, data_conv0, 1e-10)
+	Amp1_data, ED1_data = func_BinarySearch_ED(data_array, data_conv1, 1e-10)
+	Amp2_data, ED2_data = func_BinarySearch_ED(data_array, data_conv2, 1e-10)
+
+	return theta_st, psi_1st_st, psi_2nd_st
 
 
 # 该函数用于四舍五入取整函数，并取到整数位
@@ -122,8 +227,9 @@ def func_BinarySearch_DTW(source_array,target_array, para_threshold):
 			para_dtw = dtw.dtw(source, AmpArray[i]*target)
 			dist[i] = para_dtw.distance
 			count = count + 1
-			print('It is the',count,'-th Iteration')
+			# print('It is the',count,'-th Iteration')
 
+		print('It is the',count,'-th Iteration')
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
 
@@ -176,11 +282,11 @@ def func_BinarySearch_ED(source_array,target_array, para_threshold):
 			para_ed = np.sqrt(np.sum((source - AmpArray[i]*target)**2))
 			dist[i] = para_ed
 			count = count + 1
-			print('It is the',count,'-th Iteration, ', 'error = ', height-low)
-
+			#print('It is the',count,'-th Iteration, ', 'error = ', height-low)
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
-
+	
+	print('It is the',count,'-th Iteration, ', 'error = ', height-low)
 	Amp = (low+height)/2
 	Dist = minDist
 	return Amp, Dist
