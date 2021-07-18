@@ -95,7 +95,7 @@ def func_add_noise(signal, white_noise, SNR):
 	return signal+use_noise
 
 
-def func_gauss_wave(data_array, scale):
+def func_conv_gauss_wave(data_array, scale):
 	lower = -5 * scale # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	upper = 5 * scale  # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	
@@ -118,12 +118,8 @@ def func_gauss_wave(data_array, scale):
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv2 = np.convolve(data_array, psi_2nd_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
-	
-	Amp0_data, ED0_data = func_BinarySearch_ED(data_array, data_conv0, 1e-10)
-	Amp1_data, ED1_data = func_BinarySearch_ED(data_array, data_conv1, 1e-10)
-	Amp2_data, ED2_data = func_BinarySearch_ED(data_array, data_conv2, 1e-10)
 
-	return theta_st, psi_1st_st, psi_2nd_st
+	return data_conv0, data_conv1, data_conv2
 
 
 # 该函数用于四舍五入取整函数，并取到整数位
