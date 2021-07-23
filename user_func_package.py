@@ -55,7 +55,7 @@ def func_SNR(data):
 	return 20*np.log10(A_signal/A_noise)
 
 
-# 得到添加进入解析振动信号的噪声信噪比
+# 得到添加进入解析振动信号的噪声信噪比，使得添加的噪声水平与捕捉位移信号中的噪声水平相当
 def func_get_SNR(analyze_Data, white_noise, tracking_Data):
 	SNR_analyze = func_SNR(analyze_Data)
 	SNR_tracking = func_SNR(tracking_Data)
@@ -148,6 +148,33 @@ def func_diff_2point(data_x, data_y):
 	diff_data[-1] = (data_y[-1]-data_y[-2])/timestep
 	return diff_data
 
+# 该函数为数值微分-2点中心差分：中间部分为相邻平均数值微分，两端点为相邻数值微分
+def diff_2point_central(data, timestep):
+	diff_data=np.zeros_like(data)
+	diff_data[0] = (data[1]-data[0])/timestep
+	for i in range(len(data)-3):
+		data_former = 0.5*(data[i]+data[i+1])
+		data_later = 0.5*(data[i+1]+data[i+2])
+		diff_data[i+1] = (data_later-data_former)/timestep
+	diff_data[len(data)-2] = (data[-2]-data[-3])/timestep
+	diff_data[len(data)-1] = (data[-1]-data[-2])/timestep
+	return diff_data
+
+# 该函数为数值微分-2点中心差分：中间部分为相邻平均数值微分，两端点为相邻数值微分
+def diff_8point_central(data, timestep):
+	a1 = 0.8024
+	a2 = -0.2022
+	a3 = 0.03904
+	a4 = -0.003732
+	diff_data=np.zeros_like(data)
+	for i in range(len(data)-9):
+		delta4 = a4*(data[i+8] - data[i])
+		delta3 = a3*(data[i+7] - data[i+1])
+		delta2 = a2*(data[i+6] - data[i+2])
+		delta1 = a1*(data[i+5] - data[i+3])
+		diff_data[i] = (delta4+delta3+delta2+delta1)/timestep
+		i = i + 20
+	return diff_data
 
 # 该函数是用于将采样频率混合125Hz，250Hz，500Hz的位移捕捉离散信号通过线性插值调整为采样频率统一为最大频率500Hz的采样信号
 def func_update_disp(para_time, para_disp, target_freq):
