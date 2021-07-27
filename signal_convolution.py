@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
 
-	scale =12.45  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =6.4  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 
 	analy_utn_conv0, analy_utn_conv1, analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)  # 手动生成高斯小波函数族,并与信号进行卷积
 	test_ut_conv0, test_ut_conv1, test_ut_conv2 = func_conv_gauss_wave(test_ut, scale)  # 手动生成高斯小波函数族,并与信号进行卷积

@@ -3,6 +3,34 @@
 import numpy as np
 import random
 
+# 根据Fourier变换结果对频域能量段按照频域能量比例分别为33%，66%，99%进行分割，并返回分割点的索引值
+def func_freqs_divide(signal_data):
+	n = len(signal_data)
+	power_signal = pow(signal_data,2)
+
+	total_energy = np.sum(power_signal)
+	print(total_energy - pow(np.linalg.norm(signal_data,ord=2),2))
+	sum_energy = 0
+	i50, i90, i99 = 0,0,0
+	for i in range(n):
+		sum_energy = np.sum(power_signal[:i+1])
+		ratio_s = sum_energy/total_energy
+		print('ratio_s=',ratio_s)
+		if ratio_s*100>=0 and ratio_s*100<=50:
+			i50 = i
+			print('i50=',i50)
+			print('ratio_s50=',ratio_s)
+		elif ratio_s*100>50 and ratio_s*100<=90:
+			i90 = i
+			print('i90=',i90)
+			print('ratio_s90=',ratio_s)
+		elif ratio_s*100>90 and ratio_s*100<=99:
+			i99 = i
+			print('i99=',i99)
+			print('ratio_s99=',ratio_s)
+		else:
+			pass
+	return i50, i90, i99
 
 # 给出一个单自由度低阻尼体系动力学时程解析信号，参考《结构动力学》
 def func_analytical_signal(time_updated):
