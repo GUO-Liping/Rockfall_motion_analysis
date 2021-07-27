@@ -54,7 +54,7 @@ time_updated, disp_updated = func_update_disp(time_series,disp_series, 500)
 
 signal_handle = disp_updated
 wavelet_use = 'gaus2'
-scale_use = np.arange(2,20,2)
+scale_use = np.arange(4,50,1)
 
 totalscal = 256
 fc = pywt.central_frequency('gaus2')
