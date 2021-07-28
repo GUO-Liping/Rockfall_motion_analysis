@@ -33,6 +33,9 @@ if __name__ == '__main__':
 	analy_vtn = func_diff_2point(time_updated, analy_utn)
 	analy_atn = func_diff_2point(time_updated, analy_vtn)
 
+	plt.plot(analy_ut)
+	plt.plot(analy_ut)
+	plt.plot(analy_ut)
 	print('SNR of analy signal = ', func_SNR(analy_ut))	
 	print('added SNR = ', add_SNR)
 	print('SNR of noise-added signal = ', func_SNR(analy_utn))

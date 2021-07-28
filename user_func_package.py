@@ -50,8 +50,8 @@ def func_analytical_signal(time_updated):
 	exam_ut = (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C
 	exam_vt = exam_ut*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D
 	exam_at = exam_vt*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D*(-exam_xi*exam_omega) - (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C*exam_omega_D**2
-
-	return exam_ut, exam_vt, exam_at
+	exam_at1 = -2*exam_xi*exam_omega*exam_vt + (exam_xi**2*exam_omega**2 - exam_omega_D**2)*exam_ut
+	return exam_ut, exam_vt, exam_at1
 
 
 # 该函数用于计算原始数据data的信噪比
