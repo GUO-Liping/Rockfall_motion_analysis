@@ -45,7 +45,7 @@ if __name__ == '__main__':
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
 
-	scale =6.4  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =60.2  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 
 	analy_utn_conv0, analy_utn_conv1, analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)  # 手动生成高斯小波函数族,并与信号进行卷积
 	test_ut_conv0, test_ut_conv1, test_ut_conv2 = func_conv_gauss_wave(test_ut, scale)  # 手动生成高斯小波函数族,并与信号进行卷积
@@ -61,21 +61,21 @@ if __name__ == '__main__':
 	# print('Amplitude Coefficient = ', Amp, 'The Euclidean distance = ', EDist)
 
 	plt.subplot(2,3,1)
-	plt.plot(time_updated, analy_utn,label = 'analy_utn')
-	plt.plot(time_updated, Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
-	plt.plot(time_updated, analy_utn,label = 'analy_utn')
+	plt.plot(time_updated[50:-50], analy_utn[50:-50],label = 'analy_utn')
+	plt.plot(time_updated[50:-50], Amp0_analy_utn*analy_utn_conv0[50:-50],label = 'Amp*conv0')
+	plt.plot(time_updated[50:-50], analy_ut[50:-50],label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,2)
-	plt.plot(time_updated, analy_vtn,label = 'analy_vtn')
-	plt.plot(time_updated, Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
-	plt.plot(time_updated, analy_vt,label = 'analy_vt')
+	plt.plot(time_updated[50:-50], analy_vtn[50:-50],label = 'analy_vtn')
+	plt.plot(time_updated[50:-50], Amp1_analy_utn*analy_utn_conv1[50:-50],label = 'Amp1*conv1')
+	plt.plot(time_updated[50:-50], analy_vt[50:-50],label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,3)
-	plt.plot(time_updated, analy_atn,label = 'analy_atn')
-	plt.plot(time_updated, Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
-	plt.plot(time_updated, analy_at,label = 'analy_at')
+	plt.plot(time_updated[50:-50], analy_atn[50:-50],label = 'analy_atn')
+	plt.plot(time_updated[50:-50], Amp2_analy_utn*analy_utn_conv2[50:-50],label = 'Amp1*conv1')
+	plt.plot(time_updated[50:-50], analy_at[50:-50],label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,4)
