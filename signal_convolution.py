@@ -13,6 +13,8 @@ if __name__ == '__main__':
 	sample_rate = 500
 	total_time = np.max(time_series)
 	time_updated0, disp_updated0 = func_update_disp(time_series,disp_series, sample_rate)
+
+	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
 	time_updated1 = pywt.pad(time_updated0,(0,500),'antireflect')
 	disp_updated1 = pywt.pad(disp_updated0,(0,500),'antireflect')
 	time_updated = pywt.pad(time_updated1,(500,0),'antireflect')

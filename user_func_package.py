@@ -1,6 +1,7 @@
 #!/usr/bin/env python    
 #encoding: utf-8 
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 
 # 根据Fourier变换结果对频域能量段按照频域能量比例分别为33%，66%，99%进行分割，并返回分割点的索引值
@@ -142,6 +143,20 @@ def func_conv_gauss_wave(data_array, scale):
 	C2 = np.sqrt(np.sqrt(2/(9*np.pi)))
 	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)
 	psi_2nd_st = (-1)**2*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))
+
+	plt.subplot(1,3,1)
+	plt.plot(t,theta_st,label = 'gauss')
+	plt.legend(loc="best",fontsize=8)
+
+	plt.subplot(1,3,2)
+	plt.plot(t,psi_1st_st,label = 'gauss1')
+	plt.legend(loc="best",fontsize=8)
+
+	plt.subplot(1,3,3)
+	plt.plot(t,psi_2nd_st,label = 'gauss2')
+	plt.legend(loc="best",fontsize=8)
+
+	plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
