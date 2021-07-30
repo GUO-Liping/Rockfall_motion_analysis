@@ -144,19 +144,19 @@ def func_conv_gauss_wave(data_array, scale):
 	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)
 	psi_2nd_st = (-1)**2*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))
 
-	plt.subplot(1,3,1)
-	plt.plot(t,theta_st,label = 'gauss')
-	plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,3,1)
+	#plt.plot(t,theta_st,label = 'gauss')
+	#plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(1,3,2)
-	plt.plot(t,psi_1st_st,label = 'gauss1')
-	plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,3,2)
+	#plt.plot(t,psi_1st_st,label = 'gauss1')
+	#plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(1,3,3)
-	plt.plot(t,psi_2nd_st,label = 'gauss2')
-	plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,3,3)
+	#plt.plot(t,psi_2nd_st,label = 'gauss2')
+	#plt.legend(loc="best",fontsize=8)
 
-	plt.show()
+	#plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
