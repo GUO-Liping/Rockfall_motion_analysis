@@ -25,14 +25,20 @@ if __name__ == '__main__':
 
 	time_updated, disp_updated =time_750kJ_MEL, disp_750kJ_MEL 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
-	time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
-	disp_updated1 = pywt.pad(disp_updated0,(0,500),'zero')
+	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
+	#disp_updated1 = pywt.pad(disp_updated0,(0,500),'zero')
 	#time_updated = pywt.pad(time_updated1,(500,0),'zero')
 	#disp_updated = pywt.pad(disp_updated1,(500,0),'zero')
+	time_111, disp_111 = func_user_pad(time_updated, disp_updated, 50, 'before', 100)
+	time_111, disp_111 = func_user_pad(time_111, disp_111, 50, 'after', 100)
 
-	test_ut = disp_updated
-	test_vt = func_diff_2point(time_updated, disp_updated)
-	test_at = func_diff_2point(time_updated, test_vt)
+	plt.plot(time_updated, disp_updated,'*')
+	plt.plot(time_111, disp_111,'-')
+	plt.show()
+
+	test_utn = disp_updated
+	test_vtn = func_diff_2point(time_updated, disp_updated)
+	test_atn = func_diff_2point(time_updated, test_vtn)
 
 	analy_ut = func_analytical_signal(time_updated)[0]
 	analy_vt = func_analytical_signal(time_updated)[1]
@@ -54,52 +60,41 @@ if __name__ == '__main__':
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
 
-	scale =1.5 # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =10 # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 
-	analy_utn_conv0, analy_utn_conv1, analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)  # 手动生成高斯小波函数族,并与信号进行卷积
-	test_ut_conv0, test_ut_conv1, test_ut_conv2 = func_conv_gauss_wave(test_ut, scale)  # 手动生成高斯小波函数族,并与信号进行卷积
+	key_i = int(len(time_updated)/3)  # 关键索引，便于求解小波变换幅值参数
 
-	Amp0_analy_utn, ED0_analy_utn = func_BinarySearch_ED(analy_utn, analy_utn_conv0, 1e-10)
-	Amp1_analy_utn, ED1_analy_utn = func_BinarySearch_ED(analy_vtn, analy_utn_conv1, 1e-10)
-	Amp2_analy_utn, ED2_analy_utn = func_BinarySearch_ED(analy_atn, analy_utn_conv2, 1e-10)
+	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale)[0]
+	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1]
+	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	# 有问题！！！
-	# 有问题！！！
-	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	# 有问题！！！
-	# 有问题！！！	
-	Amp0_test_ut, ED0_test_ut = func_BinarySearch_ED(test_ut, test_ut_conv0, 1e-10)
-	Amp1_test_ut, ED1_test_ut = func_BinarySearch_ED(test_vt, test_ut_conv1, 1e-10)
-	Amp2_test_ut, ED2_test_ut = func_BinarySearch_ED(test_at, test_ut_conv2, 1e-10)
+	#Amp1_analy_utn, ED1_analy_utn = func_BinarySearch_ED(analy_vtn, analy_utn_conv1, 1e-10)
+	#Amp2_analy_utn, ED2_analy_utn = func_BinarySearch_ED(analy_atn, analy_utn_conv2, 1e-10)
+	integral_analy_utn_conv0 = analy_utn_conv0
+	integral_analy_utn_conv1 = func_integral_trapozoidal_rule(time_updated, analy_utn_conv1, analy_utn[0])  # 梯形法则一次积分
+	integral_analy_utn_conv2 = func_integral_trapozoidal_rule(time_updated, analy_utn_conv2, analy_vtn[0])  # 梯形法则再次积分
 
-	# print('Amplitude Coefficient = ', Amp, 'The Euclidean distance = ', EDist)
+	plt.plot(integral_analy_utn_conv2,label='a')
+	plt.plot(analy_vtn,label='b')
+	plt.legend()
+	plt.show()
+
+	Amp0_analy_utn, ED0_analy_utn = func_BinarySearch_ED(analy_utn-analy_utn[key_i], analy_utn_conv0-analy_utn_conv0[key_i], 1e-10)
+	Amp1_analy_utn, ED1_analy_utn = func_BinarySearch_ED(analy_utn-analy_utn[key_i], integral_analy_utn_conv1-integral_analy_utn_conv1[key_i], 1e-10)
+	Amp2_analy_utn, ED2_analy_utn = func_BinarySearch_ED(Amp1_analy_utn*analy_utn_conv1-Amp1_analy_utn*analy_utn_conv1[key_i], integral_analy_utn_conv2-integral_analy_utn_conv2[key_i], 1e-10)
+	
+	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale)[0]
+	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1]
+	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2]  # 手动生成高斯小波函数族,并与信号进行卷积
+
+	integral_test_utn_conv0 = test_utn_conv0
+	integral_test_utn_conv1 = func_integral_trapozoidal_rule(time_updated, test_utn_conv1, test_utn[0])  # 梯形法则一次积分
+	integral_test_utn_conv2 = func_integral_trapozoidal_rule(time_updated, test_utn_conv2, test_vtn[0])  # 梯形法则再次积分
+
+	Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_utn-test_utn[key_i], integral_test_utn_conv0-integral_test_utn_conv0[key_i], 1e-10)
+	Amp1_test_utn, ED1_test_utn = func_BinarySearch_ED(test_utn-test_utn[key_i], integral_test_utn_conv1-integral_test_utn_conv1[key_i], 1e-10)
+	Amp2_test_utn, ED2_test_utn = func_BinarySearch_ED(Amp1_test_utn*test_utn_conv1-Amp1_test_utn*test_utn_conv1[key_i], integral_test_utn_conv2-integral_test_utn_conv2[key_i], 1e-10)
+
 
 	plt.subplot(2,3,1)
 	plt.plot(time_updated[50:-50], analy_utn[50:-50],label = 'analy_utn')
@@ -120,18 +115,18 @@ if __name__ == '__main__':
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,4)
-	plt.plot(time_updated, test_ut,label = 'test_ut')
-	plt.plot(time_updated, Amp0_test_ut*test_ut_conv0,label = 'test_ut_conv0')
+	plt.plot(time_updated, test_utn,label = 'test_utn')
+	plt.plot(time_updated, Amp0_test_utn*test_utn_conv0,label = 'test_utn_conv0')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,5)
-	plt.plot(time_updated, test_vt,label = 'test_vt')
-	plt.plot(time_updated, Amp1_test_ut*test_ut_conv1,label = 'test_ut_conv1')
+	plt.plot(time_updated, test_vtn,label = 'test_vtn')
+	plt.plot(time_updated, Amp1_test_utn*test_utn_conv1,label = 'test_utn_conv1')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,6)
-	plt.plot(time_updated, test_at,label = 'test_at')
-	plt.plot(time_updated, Amp2_test_ut*test_ut_conv2,label = 'test_ut_conv2')
+	plt.plot(time_updated, test_atn,label = 'test_atn')
+	plt.plot(time_updated, Amp2_test_utn*test_utn_conv2,label = 'test_utn_conv2')
 	plt.legend(loc="best",fontsize=8)
 	plt.show()
 

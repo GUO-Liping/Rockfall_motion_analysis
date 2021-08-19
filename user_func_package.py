@@ -4,6 +4,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
+# 采用自由落体抛物线轨迹方程补充数据处理端部效应
+def func_user_pad(t_arr, u_arr, n_poly, pos, num):
+	t_lower = np.min(t_arr)
+	t_upper = np.max(t_arr)
+	t_step = t_arr[1]-t_arr[0]
+
+
+	if pos == 'before':
+		cc = np.polyfit(t_arr[:n_poly], u_arr[:n_poly], 2)
+		fx_add = cc[0]*t_arr[:n_poly]**2 + cc[1]*t_arr[:n_poly] + cc[2]
+		fx_diff = 2*cc[0]*t_arr[:n_poly] + cc[1]
+		u0 = fx_add[0]
+		v0 = fx_diff[0]
+
+		t_add = np.arange(-num*t_step, 0.5*t_step, step=t_step)
+		u_add = u0 + v0*t_add - 0.5*9.81*t_add**2
+		return np.concatenate((t_lower+t_add[:-1], t_arr),axis=0), np.concatenate((u_add[:-1], u_arr),axis=0)
+
+	elif pos == 'after':
+		cc = np.polyfit(t_arr[-n_poly:], u_arr[-n_poly:], 2)
+		fx_add = cc[0]*t_arr[-n_poly:]**2 + cc[1]*t_arr[-n_poly:] + cc[2]
+		fx_diff = 2*cc[0]*t_arr[-n_poly:] + cc[1]
+		u0 = fx_add[-1]
+		v0 = fx_diff[-1]
+
+		t_add = np.arange(0, (num+0.5)*t_step, step=t_step)
+		u_add = u0 + v0*t_add - 0.5*9.81*t_add**2
+		return np.concatenate((t_arr, t_upper+t_add[1:]),axis=0), np.concatenate((u_arr, u_add[1:]),axis=0)
+	else:
+		raise ValueError
+
 # 根据Fourier变换结果对频域能量段按照频域能量比例分别为33%，66%，99%进行分割，并返回分割点的索引值
 def func_freqs_divide(signal_data):
 	n = len(signal_data)
@@ -218,6 +249,22 @@ def diff_8point_central(data, timestep):
 		diff_data[i] = (delta4+delta3+delta2+delta1)/timestep
 		i = i + 20
 	return diff_data
+
+def func_integral_trapozoidal_rule(time_arr, data_arr, init_data):
+	t_lower = time_arr[:-1]
+	t_upper = time_arr[1:]
+
+	data_lower = data_arr[:-1]
+	data_upper = data_arr[1:]
+
+	t_step = t_upper - t_lower
+
+	intgral_step = np.concatenate((np.array([0]),(data_lower+data_upper)*t_step/2),axis=0)
+	result = np.zeros_like(time_arr)
+	for i in range(len(time_arr)-1):
+		result[i+1] = np.sum(intgral_step[:i+1])
+
+	return init_data + result
 
 # 该函数是用于将采样频率混合125Hz，250Hz，500Hz的位移捕捉离散信号通过线性插值调整为采样频率统一为最大频率500Hz的采样信号
 def func_update_disp(para_time, para_disp, target_freq):
