@@ -51,6 +51,18 @@ if __name__ == '__main__':
 	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(analy_ut))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	add_SNR = func_get_SNR(analy_ut, white_noise, disp_updated)
 
+	sig_sint = np.sin(np.arange(0,2*np.pi,0.01))
+	sig_cost = np.cos(np.arange(0,2*np.pi,0.01))
+	sig_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(sig_sint))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
+	sig_sintn = func_add_noise(sig_sint, sig_noise, 0.1)
+	plt.plot(sig_sintn)
+	plt.show()
+	plt.plot(sig_sint)
+	plt.show()
+	plt.plot(sig_cost)
+	plt.show()
+	plt.plot(-sig_sint)
+	plt.show()
 	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)
 	analy_vtn = func_diff_2point(time_updated, analy_utn)
 	analy_atn = func_diff_2point(time_updated, analy_vtn)

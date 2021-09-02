@@ -178,15 +178,12 @@ def func_conv_gauss_wave(data_array, scale):
 	#plt.subplot(1,3,1)
 	#plt.plot(t,theta_st,label = 'gauss')
 	#plt.legend(loc="best",fontsize=8)
-
 	#plt.subplot(1,3,2)
 	#plt.plot(t,psi_1st_st,label = 'gauss1')
 	#plt.legend(loc="best",fontsize=8)
-
 	#plt.subplot(1,3,3)
 	#plt.plot(t,psi_2nd_st,label = 'gauss2')
 	#plt.legend(loc="best",fontsize=8)
-
 	#plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
