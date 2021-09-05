@@ -1,8 +1,68 @@
 #!/usr/bin/env python    
 #encoding: utf-8 
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 
+# 采用自由落体抛物线轨迹方程补充数据处理端部效应
+def func_user_pad(t_arr, u_arr, n_poly, pos, num):
+	t_lower = np.min(t_arr)
+	t_upper = np.max(t_arr)
+	t_step = t_arr[1]-t_arr[0]
+
+
+	if pos == 'before':
+		cc = np.polyfit(t_arr[:n_poly], u_arr[:n_poly], 2)
+		fx_add = cc[0]*t_arr[:n_poly]**2 + cc[1]*t_arr[:n_poly] + cc[2]
+		fx_diff = 2*cc[0]*t_arr[:n_poly] + cc[1]
+		u0 = fx_add[0]
+		v0 = fx_diff[0]
+
+		t_add = np.arange(-num*t_step, 0.5*t_step, step=t_step)
+		u_add = u0 + v0*t_add - 0.5*9.81*t_add**2
+		return np.concatenate((t_lower+t_add[:-1], t_arr),axis=0), np.concatenate((u_add[:-1], u_arr),axis=0)
+
+	elif pos == 'after':
+		cc = np.polyfit(t_arr[-n_poly:], u_arr[-n_poly:], 2)
+		fx_add = cc[0]*t_arr[-n_poly:]**2 + cc[1]*t_arr[-n_poly:] + cc[2]
+		fx_diff = 2*cc[0]*t_arr[-n_poly:] + cc[1]
+		u0 = fx_add[-1]
+		v0 = fx_diff[-1]
+
+		t_add = np.arange(0, (num+0.5)*t_step, step=t_step)
+		u_add = u0 + v0*t_add - 0.5*9.81*t_add**2
+		return np.concatenate((t_arr, t_upper+t_add[1:]),axis=0), np.concatenate((u_arr, u_add[1:]),axis=0)
+	else:
+		raise ValueError
+
+# 根据Fourier变换结果对频域能量段按照频域能量比例分别为33%，66%，99%进行分割，并返回分割点的索引值
+def func_freqs_divide(signal_data):
+	n = len(signal_data)
+	power_signal = pow(signal_data,2)
+
+	total_energy = np.sum(power_signal)
+	print(total_energy - pow(np.linalg.norm(signal_data,ord=2),2))
+	sum_energy = 0
+	i50, i90, i99 = 0,0,0
+	for i in range(n):
+		sum_energy = np.sum(power_signal[:i+1])
+		ratio_s = sum_energy/total_energy
+		print('ratio_s=',ratio_s)
+		if ratio_s*100>=0 and ratio_s*100<=50:
+			i50 = i
+			print('i50=',i50)
+			print('ratio_s50=',ratio_s)
+		elif ratio_s*100>50 and ratio_s*100<=90:
+			i90 = i
+			print('i90=',i90)
+			print('ratio_s90=',ratio_s)
+		elif ratio_s*100>90 and ratio_s*100<=99:
+			i99 = i
+			print('i99=',i99)
+			print('ratio_s99=',ratio_s)
+		else:
+			pass
+	return i50, i90, i99
 
 # 给出一个单自由度低阻尼体系动力学时程解析信号，参考《结构动力学》
 def func_analytical_signal(time_updated):
@@ -22,8 +82,8 @@ def func_analytical_signal(time_updated):
 	exam_ut = (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C
 	exam_vt = exam_ut*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D
 	exam_at = exam_vt*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D*(-exam_xi*exam_omega) - (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C*exam_omega_D**2
-
-	return exam_ut, exam_vt, exam_at
+	exam_at1 = -2*exam_xi*exam_omega*exam_vt + (exam_xi**2*exam_omega**2 - exam_omega_D**2)*exam_ut
+	return exam_ut, exam_vt, exam_at1
 
 
 # 该函数用于计算原始数据data的信噪比
@@ -115,6 +175,17 @@ def func_conv_gauss_wave(data_array, scale):
 	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)
 	psi_2nd_st = (-1)**2*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))
 
+	#plt.subplot(1,3,1)
+	#plt.plot(t,theta_st,label = 'gauss')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,3,2)
+	#plt.plot(t,psi_1st_st,label = 'gauss1')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,3,3)
+	#plt.plot(t,psi_2nd_st,label = 'gauss2')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.show()
+
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv2 = np.convolve(data_array, psi_2nd_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
@@ -175,6 +246,22 @@ def diff_8point_central(data, timestep):
 		diff_data[i] = (delta4+delta3+delta2+delta1)/timestep
 		i = i + 20
 	return diff_data
+
+def func_integral_trapozoidal_rule(time_arr, data_arr, init_data):
+	t_lower = time_arr[:-1]
+	t_upper = time_arr[1:]
+
+	data_lower = data_arr[:-1]
+	data_upper = data_arr[1:]
+
+	t_step = t_upper - t_lower
+
+	intgral_step = np.concatenate((np.array([0]),(data_lower+data_upper)*t_step/2),axis=0)
+	result = np.zeros_like(time_arr)
+	for i in range(len(time_arr)-1):
+		result[i+1] = np.sum(intgral_step[:i+1])
+
+	return init_data + result
 
 # 该函数是用于将采样频率混合125Hz，250Hz，500Hz的位移捕捉离散信号通过线性插值调整为采样频率统一为最大频率500Hz的采样信号
 def func_update_disp(para_time, para_disp, target_freq):
