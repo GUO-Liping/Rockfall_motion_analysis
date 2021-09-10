@@ -40,9 +40,9 @@ if __name__ == '__main__':
 	test_vtn = func_diff_2point(time_updated, disp_updated)
 	test_atn = func_diff_2point(time_updated, test_vtn)
 
-	plt.plot(time_750kJ_SEL1st, disp_750kJ_SEL1st,'*')
-	plt.plot(time_updated, disp_updated,'-')
-	plt.show()
+	#plt.plot(time_750kJ_SEL1st, disp_750kJ_SEL1st,'*')
+	#plt.plot(time_updated, disp_updated,'-')
+	#plt.show()
 
 	analy_ut = func_analytical_signal(time_updated)[0]
 	analy_vt = func_analytical_signal(time_updated)[1]
@@ -55,14 +55,14 @@ if __name__ == '__main__':
 	sig_cost = np.cos(np.arange(0,2*np.pi,0.01))
 	sig_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(sig_sint))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	sig_sintn = func_add_noise(sig_sint, sig_noise, 0.1)
-	plt.plot(sig_sintn)
-	plt.show()
-	plt.plot(sig_sint)
-	plt.show()
-	plt.plot(sig_cost)
-	plt.show()
-	plt.plot(-sig_sint)
-	plt.show()
+	#plt.plot(sig_sintn)
+	#plt.show()
+	#plt.plot(sig_sint)
+	#plt.show()
+	#plt.plot(sig_cost)
+	#plt.show()
+	#plt.plot(-sig_sint)
+	#plt.show()
 	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)
 	analy_vtn = func_diff_2point(time_updated, analy_utn)
 	analy_atn = func_diff_2point(time_updated, analy_vtn)
