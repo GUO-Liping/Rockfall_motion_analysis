@@ -31,8 +31,11 @@ if __name__ == '__main__':
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
 
-	n1 = 50	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-	n2 = 50	# 第二个常数，表示在信号首尾端需要添加的数据点数量
+	n1 = int(len(time_updated)/20)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n2 = int(len(time_updated)/20)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
+	scale =10  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	key_i = int((len(time_updated)-n1-n2-1)*0.5)  # 关键索引，便于求解小波变换幅值参数
+
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n1, 'before', n2)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n1, 'after',  n2)
 
@@ -40,7 +43,7 @@ if __name__ == '__main__':
 	test_vtn = func_diff_2point(time_updated, disp_updated)
 	test_atn = func_diff_2point(time_updated, test_vtn)
 
-	#plt.plot(time_750kJ_SEL1st, disp_750kJ_SEL1st,'*')
+	#plt.plot(time_R7_impact1st,disp_R7_impact1st,'*')
 	#plt.plot(time_updated, disp_updated,'-')
 	#plt.show()
 
@@ -75,10 +78,6 @@ if __name__ == '__main__':
 	#plt.plot(time_updated,analy_ut-1.75, label="analy_ut")
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
-
-
-	scale =4  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	key_i = int((len(time_updated)-n1-n2-1)*0.472)  # 关键索引，便于求解小波变换幅值参数
 
 	# 处理添加噪声后的解析信号
 	analy_time = time_updated
@@ -195,8 +194,12 @@ if __name__ == '__main__':
 
 	# 绘制数值微分，小波微分结果
 
-	#cccc1 = Amp*myconv0
-	#np.savetxt('AmpMyconv0', cccc1)
+	cccc0 = Amp0_test_utn*test_utn_conv0
+	cccc1 = Amp1_test_utn*test_utn_conv1
+	cccc2 = Amp2_test_utn*test_utn_conv2
+	np.savetxt('Amp0Myconv0', cccc0)
+	np.savetxt('Amp1Myconv1', cccc1)
+	np.savetxt('Amp2Myconv2', cccc2)
 
 	'''
 	# 绘制卷积运算、pywt计算结果
