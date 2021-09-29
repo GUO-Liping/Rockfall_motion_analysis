@@ -58,18 +58,19 @@ wavelet_use = 'gaus1'
 scale_use = np.arange(32,256,1)
 
 wavelet_use = 'gaus2'
-scale_use = np.arange(4,50,1)
+scale_use = np.arange(5,50,1)
 
 totalscal = 256
 fc = pywt.central_frequency('gaus2',precision=16)
-print('fc=',fc)
 cparam = 2 * fc * totalscal
 scales = cparam / np.arange(totalscal, 1, -1)
 
 cwtmatr, freqs = pywt.cwt(signal_handle, scale_use, wavelet_use)  #小波分解
+print('fc=',cwtmatr.shape)
 
 fig, ax = plt.subplots()
-CS = ax.contour(time_updated, freqs, abs(cwtmatr))
+num = int(len(disp_updated)/10)
+CS = ax.contour(time_updated[num:-num], freqs, abs(cwtmatr[:,num:-num]))
 #CS2 = ax.contourf(time_updated, freqs, abs(cwtmatr))
 ax.clabel(CS, CS.levels, inline=True, fontsize=8)
 
