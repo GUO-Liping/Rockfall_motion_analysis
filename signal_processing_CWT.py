@@ -57,7 +57,7 @@ signal_handle = disp_updated
 wavelet_use = 'gaus1'
 scale_use = np.arange(32,256,1)
 
-wavelet_use = 'gaus2'
+wavelet_use = 'gaus6'
 scale_use = np.arange(5,50,1)
 
 totalscal = 256
