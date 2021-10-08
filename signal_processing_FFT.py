@@ -89,10 +89,10 @@ print('E2=',E_2)
 print('E3=',E_3)
 
 # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-labels = [str("%.1f" %f_i[0])+'Hz'+'~'+str("%.1f" %f_i[1])+'Hz'+'\n'+'s'+'≥'+str("%.1f" %s_g[1]),
-		  str("%.1f" %f_i[1])+'Hz'+'~'+str("%.1f" %f_i[2])+'Hz'+'\n'+str("%.1f" %s_g[2])+'≤'+'s'+'≤'+str("%.1f" %s_g[1]),
-		  str("%.1f" %f_i[2])+'Hz'+'~'+str("%.1f" %f_i[3])+'Hz'+'\n'+str("%.1f" %s_g[3])+'≤'+'s'+'≤'+str("%.1f" %s_g[2]),
-		  str("%.1f" %f_i[3])+'Hz'+'~'+str("%.1f" %f_i[4])+'Hz'+'\n'+'s'+'≤'+str("%.1f" %s_g[3])]
+labels = [str("%.1f" %f_i[0])+'Hz'+'~'+str("%.1f" %f_i[1])+'Hz',
+		  str("%.1f" %f_i[1])+'Hz'+'~'+str("%.1f" %f_i[2])+'Hz',
+		  str("%.1f" %f_i[2])+'Hz'+'~'+str("%.1f" %f_i[3])+'Hz',
+		  str("%.1f" %f_i[3])+'Hz'+'~'+str("%.1f" %f_i[4])+'Hz']
 sizes = [E_0, E_1, E_2, E_3]
 
 explode = (0, 0, 0.1, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
