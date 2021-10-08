@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import random
 
 # 采用自由落体抛物线轨迹方程补充数据处理端部效应
+# t_arr为第一个数组, u_arr为第二个数组, n_poly为原始数据中用于拟合的数据数量, pos延拓位置, num延拓点数量
 def func_user_pad(t_arr, u_arr, n_poly, pos, num):
 	t_lower = np.min(t_arr)
 	t_upper = np.max(t_arr)

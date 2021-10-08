@@ -30,15 +30,17 @@ if __name__ == '__main__':
 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
+	plt.plot(time_updated, disp_updated,'*')
 
-	n1 = int(len(time_updated)/20)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-	n2 = int(len(time_updated)/20)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =10  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	key_i = int((len(time_updated)-n1-n2-1)*0.5)  # 关键索引，便于求解小波变换幅值参数
+	n_fit = int(0.1*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
+	scale =12  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	key_i = int((len(time_updated)-2*n_add-1)*0.79)  # 关键索引，便于求解小波变换幅值参数0.918for12
 
-	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n1, 'before', n2)
-	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n1, 'after',  n2)
-
+	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
+	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
+	plt.plot(time_updated, disp_updated,'-')
+	plt.show()
 	test_utn = disp_updated
 	test_vtn = func_diff_2point(time_updated, disp_updated)
 	test_atn = func_diff_2point(time_updated, test_vtn)
@@ -46,29 +48,31 @@ if __name__ == '__main__':
 	#plt.plot(time_R7_impact1st,disp_R7_impact1st,'*')
 	#plt.plot(time_updated, disp_updated,'-')
 	#plt.show()
-
-	analy_ut = func_analytical_signal(time_updated)[0]
-	analy_vt = func_analytical_signal(time_updated)[1]
-	analy_at = func_analytical_signal(time_updated)[2]
+	analy_t = time_updated[n_add:-n_add]
+	analy_ut = func_analytical_signal(analy_t)[0]
+	analy_vt = func_analytical_signal(analy_t)[1]
+	analy_at = func_analytical_signal(analy_t)[2]
 
 	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(analy_ut))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	add_SNR = func_get_SNR(analy_ut, white_noise, disp_updated)
 
+	'''
 	sig_sint = np.sin(np.arange(0,2*np.pi,0.01))
 	sig_cost = np.cos(np.arange(0,2*np.pi,0.01))
 	sig_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(sig_sint))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	sig_sintn = func_add_noise(sig_sint, sig_noise, 0.1)
-	#plt.plot(sig_sintn)
-	#plt.show()
-	#plt.plot(sig_sint)
-	#plt.show()
-	#plt.plot(sig_cost)
-	#plt.show()
-	#plt.plot(-sig_sint)
-	#plt.show()
+	plt.plot(sig_sintn)
+	plt.show()
+	plt.plot(sig_sint)
+	plt.show()
+	plt.plot(sig_cost)
+	plt.show()
+	plt.plot(-sig_sint)
+	plt.show()
+	'''
 	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)
-	analy_vtn = func_diff_2point(time_updated, analy_utn)
-	analy_atn = func_diff_2point(time_updated, analy_vtn)
+	analy_vtn = func_diff_2point(analy_t, analy_utn)
+	analy_atn = func_diff_2point(analy_t, analy_vtn)
 
 	print('SNR of analy signal = ', func_SNR(analy_ut))	
 	print('added SNR = ', add_SNR)
@@ -80,14 +84,15 @@ if __name__ == '__main__':
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
 
 	# 处理添加噪声后的解析信号
-	analy_time = time_updated
 	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale)[0]
 	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1]
 	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2]  # 手动生成高斯小波函数族,并与信号进行卷积
 
+	print('length of analy_t = ', len(analy_t))	
+	print('length of analy_utn_conv2 = ', len(analy_utn_conv2))	
 	integral_analy_utn_conv0 = analy_utn_conv0
-	integral_analy_utn_conv1 = func_integral_trapozoidal_rule(analy_time, analy_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
-	integral_analy_utn_conv2 = func_integral_trapozoidal_rule(analy_time, analy_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
+	integral_analy_utn_conv1 = func_integral_trapozoidal_rule(analy_t, analy_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
+	integral_analy_utn_conv2 = func_integral_trapozoidal_rule(analy_t, analy_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
 
 	analy_target0 = analy_utn-analy_utn[key_i]
 	analy_compare0 = analy_utn_conv0-analy_utn_conv0[key_i]
@@ -103,17 +108,17 @@ if __name__ == '__main__':
 
 	# 处理试验捕捉的含噪信号
 	# 对含噪信号进行高斯小波卷积
-	test_time = time_updated[n1:-n2]
-	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale)[0][n1:-n2]
-	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1][n1:-n2]
-	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2][n1:-n2]  # 手动生成高斯小波函数族,并与信号进行卷积
+	test_time = time_updated[n_add:-n_add]
+	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale)[0][n_add:-n_add]
+	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1][n_add:-n_add]
+	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
 	# 对含噪信号高斯小波卷积结果反向积分，需要输入初始条件
 	integral_test_utn_conv0 = test_utn_conv0
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
 	integral_test_utn_conv2 = func_integral_trapozoidal_rule(test_time, test_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
 
-	test_target0 = test_utn[n1:-n2]-test_utn[key_i]
+	test_target0 = test_utn[n_add:-n_add]-test_utn[key_i]
 	test_compare0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
 	Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_target0, test_compare0, 1e-10)
 
@@ -131,35 +136,35 @@ if __name__ == '__main__':
 
 	# 绘制数值微分与小波微分对比图
 	plt.subplot(2,3,1)
-	plt.plot(time_updated[50:-50], analy_utn[50:-50],label = 'analy_utn')
-	plt.plot(time_updated[50:-50], Amp0_analy_utn*analy_utn_conv0[50:-50],label = 'Amp*conv0')
-	plt.plot(time_updated[50:-50], analy_ut[50:-50],label = 'analy_ut')
+	plt.plot(analy_t, analy_utn,label = 'analy_utn')
+	plt.plot(analy_t, Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
+	plt.plot(analy_t, analy_ut,label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,2)
-	plt.plot(time_updated[50:-50], analy_vtn[50:-50],label = 'analy_vtn')
-	plt.plot(time_updated[50:-50], Amp1_analy_utn*analy_utn_conv1[50:-50],label = 'Amp1*conv1')
-	plt.plot(time_updated[50:-50], analy_vt[50:-50],label = 'analy_vt')
+	plt.plot(analy_t, analy_vtn,label = 'analy_vtn')
+	plt.plot(analy_t, Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
+	plt.plot(analy_t, analy_vt,label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,3)
-	plt.plot(time_updated[50:-50], analy_atn[50:-50],label = 'analy_atn')
-	plt.plot(time_updated[50:-50], Amp2_analy_utn*analy_utn_conv2[50:-50],label = 'Amp1*conv1')
-	plt.plot(time_updated[50:-50], analy_at[50:-50],label = 'analy_at')
+	plt.plot(analy_t, analy_atn,label = 'analy_atn')
+	plt.plot(analy_t, Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
+	plt.plot(analy_t, analy_at,label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,4)
-	plt.plot(test_time, test_utn[n1:-n2],label = 'test_utn')
+	plt.plot(test_time, test_utn[n_add:-n_add],label = 'test_utn')
 	plt.plot(test_time, Amp0_test_utn*test_utn_conv0,label = 'test_utn_conv0')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,5)
-	plt.plot(test_time, test_vtn[n1:-n2],label = 'test_vtn')
+	plt.plot(test_time, test_vtn[n_add:-n_add],label = 'test_vtn')
 	plt.plot(test_time, Amp1_test_utn*test_utn_conv1,label = 'test_utn_conv1')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,6)
-	plt.plot(test_time, test_atn[n1:-n2],label = 'test_atn')
+	plt.plot(test_time, test_atn[n_add:-n_add],label = 'test_atn')
 	plt.plot(test_time, Amp2_test_utn*test_utn_conv2,label = 'test_utn_conv2')
 	plt.legend(loc="best",fontsize=8)
 	plt.show()
@@ -183,7 +188,7 @@ if __name__ == '__main__':
 	values = np.array(energys)  # 柱子的高度
 	width = 5  # 柱子的宽度
 	# 绘制柱状图, 每根柱子的颜色为紫罗兰色
-	plt.bar(index, values, width, label="num", color="#87CEFA")
+	#plt.bar(index, values, width, label="num", color="#87CEFA")
 
 	#tail_index = int(len(disp_updated)/100)
 	#handle = signal_handle[tail_index:-tail_index]
@@ -197,6 +202,7 @@ if __name__ == '__main__':
 	cccc0 = Amp0_test_utn*test_utn_conv0
 	cccc1 = Amp1_test_utn*test_utn_conv1
 	cccc2 = Amp2_test_utn*test_utn_conv2
+	np.savetxt('test_time', test_time)
 	np.savetxt('Amp0Myconv0', cccc0)
 	np.savetxt('Amp1Myconv1', cccc1)
 	np.savetxt('Amp2Myconv2', cccc2)
