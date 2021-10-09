@@ -17,7 +17,7 @@ time_R7_impact2nd = np.array([0,0.002,0.004,0.006,0.008,0.01,0.012,0.014,0.016,0
 disp_R7_impact2nd = np.array([0,-0.01439,-0.03571,-0.05408,-0.07521,-0.0959,-0.11548,-0.1362,-0.15347,-0.17565,-0.19525,-0.21338,-0.23172,-0.25274,-0.27198,-0.2914,-0.31301,-0.33579,-0.35138,-0.37477,-0.39772,-0.41489,-0.43647,-0.45383,-0.47597,-0.49531,-0.51852,-0.54077,-0.56182,-0.5827,-0.60057,-0.61701,-0.63627,-0.65375,-0.67502,-0.69525,-0.71605,-0.7344,-0.76163,-0.78137,-0.80266,-0.82291,-0.84672,-0.86755,-0.88699,-0.9102,-0.93105,-0.94606,-0.96828,-0.98932,-1.0055,-1.0294,-1.05033,-1.07486,-1.09363,-1.11157,-1.12934,-1.14776,-1.17037,-1.19586,-1.22127,-1.24121,-1.26457,-1.28775,-1.30788,-1.32814,-1.35118,-1.37322,-1.39677,-1.41906,-1.44463,-1.46434,-1.48945,-1.51164,-1.53618,-1.55864,-1.58163,-1.60731,-1.62418,-1.64584,-1.66596,-1.68662,-1.71003,-1.73425,-1.75409,-1.7732,-1.79892,-1.82017,-1.84146,-1.85903,-1.87793,-1.89672,-1.91288,-1.92824,-1.94327,-1.95418,-1.96454,-1.9773,-1.99189,-2.00407,-2.01316,-2.02679,-2.04051,-2.05291,-2.0633,-2.07524,-2.08609,-2.09528,-2.11056,-2.12089,-2.13107,-2.14283,-2.15158,-2.16273,-2.17362,-2.18689,-2.19565,-2.20918,-2.22072,-2.23533,-2.24959,-2.26331,-2.27618,-2.29136,-2.30125,-2.31315,-2.32708,-2.33918,-2.35215,-2.36593,-2.37722,-2.39157,-2.40457,-2.41707,-2.42965,-2.43966,-2.45168,-2.46433,-2.47827,-2.48993,-2.50638,-2.52083,-2.53373,-2.5464,-2.5588,-2.57322,-2.58919,-2.60321,-2.61654,-2.63133,-2.64313,-2.65257,-2.66896,-2.68025,-2.69327,-2.70845,-2.71986,-2.73353,-2.74569,-2.75829,-2.77304,-2.78736,-2.80419,-2.81759,-2.83306,-2.84859,-2.86041,-2.8769,-2.89004,-2.90445,-2.91967,-2.93631,-2.95158,-2.96942,-2.98273,-2.9973,-3.00932,-3.02263,-3.03819,-3.05389,-3.0701,-3.08562,-3.10125,-3.11271,-3.12556,-3.13771,-3.15139,-3.1675,-3.18558,-3.19912,-3.21521,-3.23102,-3.24636,-3.25943,-3.27371,-3.29187,-3.30561,-3.32469,-3.3398,-3.35294,-3.36791,-3.38152,-3.39906,-3.41317,-3.43097,-3.44629,-3.46212,-3.47548,-3.49175,-3.50867,-3.52366,-3.53794,-3.55481,-3.57092,-3.58975,-3.6047,-3.62166,-3.63575,-3.65053,-3.66248,-3.67788,-3.6935,-3.70979,-3.72494,-3.7493,-3.76675,-3.78121,-3.79802,-3.8116,-3.82659,-3.84123,-3.85736,-3.87541,-3.89377,-3.91036,-3.928,-3.94607,-3.96304,-3.98026,-4.00186,-4.02052,-4.03537,-4.05243,-4.0679,-4.08206,-4.10058,-4.11701,-4.13499,-4.15097,-4.16449,-4.18592])
 
 sample_rate = 500
-time_updated, disp_updated = func_update_disp(time_R7_impact2nd,disp_R7_impact2nd, sample_rate)
+time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)
 # disp_updated = np.concatenate((np.linspace(0,0,2000), disp_updated, np.linspace(0,0,2000)))
 
 N = len(disp_updated)
@@ -45,19 +45,18 @@ amp_freqs = 2/N * abs(freq_data[0:N//2])
 # amp_freqs = 2/N * abs (freq_data [0:int (N/2)])print('ratio_s=',ratio_s)
 #freqs_1 = fftfreq(N,1/sample_rate)[:N//2]
 #amp_freqs_1 = 2/N*abs(fft((disp_updated-np.average(disp_updated))*bartlett(N)))[:N//2]
+plt.figure(figsize=(5, 4))
+#plt.title ('Time Domain Signal')
+plt.xlabel ('Time',fontsize=10)
+plt.ylabel ('Amplitude',fontsize=10)
+plt.plot (time_updated, disp_updated)
 
-plt.subplot(2,1,1)
-plt.plot (time_R7_impact2nd,disp_R7_impact2nd)
-plt.title ('Time Domain Signal')
-plt.xlabel ('Time')
-plt.ylabel ('Amplitude')
-
-plt.subplot(2,1,2)
-plt.stem(freqs, amp_freqs, linefmt=None, markerfmt=None, basefmt=None,bottom=0.0, use_line_collection=True)
+plt.figure(figsize=(5, 4))
+#plt.title('Frequency domain Signal')
+plt.xlabel('Frequency in Hz',fontsize=10)
+plt.ylabel('Amplitude',fontsize=10)
+plt.stem(freqs, amp_freqs, linefmt=None, markerfmt='C0.', basefmt=None,bottom=0.0, use_line_collection=True)
 #plt.plot(freqs, amp_freqs, 'red')
-plt.title('Frequency domain Signal')
-plt.xlabel('Frequency in Hz')
-plt.ylabel('Amplitude')
 
 i_index = np.arange(4)
 j_index = 5**i_index
@@ -96,11 +95,12 @@ labels = [str("%.1f" %f_i[0])+'Hz'+'~'+str("%.1f" %f_i[1])+'Hz',
 sizes = [E_0, E_1, E_2, E_3]
 
 explode = (0, 0, 0.1, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
-
-fig1, ax1 = plt.subplots()
-ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+plt.figure(figsize=(5, 4))
+plt.xticks(fontsize=8)
+plt.yticks(fontsize=8)
+plt.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
         shadow=False, startangle=0)
-ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
 plt.show()
 ########################################################################################
