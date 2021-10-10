@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
+
 # 采用自由落体抛物线轨迹方程补充数据处理端部效应
 # t_arr为第一个数组, u_arr为第二个数组, n_poly为原始数据中用于拟合的数据数量, pos延拓位置, num延拓点数量
 def func_user_pad(t_arr, u_arr, n_poly, pos, num):
@@ -66,7 +67,7 @@ def func_freqs_divide(signal_data):
 	return i50, i90, i99
 
 # 给出一个单自由度低阻尼体系动力学时程解析信号，参考《结构动力学》
-def func_analytical_signal(time_updated):
+def func_analytical_signal_free(time_updated):
 	exam_t = time_updated
 	exam_m = 5
 	exam_k = 600
@@ -85,6 +86,59 @@ def func_analytical_signal(time_updated):
 	exam_at = exam_vt*(-exam_xi*exam_omega) + (-exam_A*np.sin(exam_omega_D*exam_t)+exam_B*np.cos(exam_omega_D*exam_t))*exam_C*exam_omega_D*(-exam_xi*exam_omega) - (exam_A*np.cos(exam_omega_D*exam_t)+exam_B * np.sin(exam_omega_D*exam_t))*exam_C*exam_omega_D**2
 	exam_at1 = -2*exam_xi*exam_omega*exam_vt + (exam_xi**2*exam_omega**2 - exam_omega_D**2)*exam_ut
 	return exam_ut, exam_vt, exam_at1
+
+
+# 给出一个单自由度低阻尼体系在谐波脉冲作用下的动力学时程解析信号，参考《结构动力学》
+def func_analytical_signal_impact(time_updated):
+	t_total = time_updated[-1]
+	t_impact =t_total/10
+	dt = time_updated[1]-time_updated[0]
+	t_I_array = np.arange(0, t_impact+dt/2, dt)
+	t_II_array = np.arange(0,t_total-t_impact+dt/2, dt)
+
+	u0 = 0
+	v0 = 0
+	para_m = 250
+	para_c = 300
+	para_k = 18000
+	p_0 = -10000
+
+	omega = np.sqrt(para_k/para_m)
+	omega_bar = np.pi/t_impact
+	xi = para_c/(2*para_m*omega)
+	omega_D = omega*np.sqrt(1-xi**2)
+	beta = omega_bar/omega
+
+	G_1 = (p_0/para_k)*(-2*xi*beta)/((1-beta**2)**2+(2*xi*beta)**2)
+	G_2 = (p_0/para_k)*(1-beta**2)/((1-beta**2)**2+(2*xi*beta)**2)
+
+	t = t_I_array
+	ut_I = G_1*np.cos(omega_bar*t) + G_2*np.sin(omega_bar*t) + ((-G_1 + u0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
+	vt_I = -G_1*omega_bar*np.sin(omega_bar*t) + G_2*omega_bar*np.cos(omega_bar*t) - omega*xi*((-G_1 + u0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*(-G_1 + u0)*np.sin(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
+	at_I = -G_1*omega_bar**2*np.cos(omega_bar*t) - G_2*omega_bar**2*np.sin(omega_bar*t) - omega**2*xi**2*((G_1 - u0)*np.cos(omega_D*t) + (G_2*omega_bar + omega*xi*(G_1 - u0) - v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) - 2*omega*xi*(omega_D*(G_1 - u0)*np.sin(omega_D*t) + (-G_2*omega_bar - omega*xi*(G_1 - u0) + v0)*np.cos(omega_D*t))*np.exp(-omega*t*xi) + omega_D*(omega_D*(G_1 - u0)*np.cos(omega_D*t) - (-G_2*omega_bar - omega*xi*(G_1 - u0) + v0)*np.sin(omega_D*t))*np.exp(-omega*t*xi)
+	
+	u1 = ut_I[-1]
+	v1 = vt_I[-1]
+
+	t = t_II_array
+	ut_II= (u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
+	vt_II= -omega*xi*(u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*u1*np.sin(omega_D*t) + (omega*u1*xi + v1)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
+	at_II= (omega**2*xi**2*(u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D) + 2*omega*xi*(omega_D*u1*np.sin(omega_D*t) - (omega*u1*xi + v1)*np.cos(omega_D*t)) - omega_D*(omega_D*u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)))*np.exp(-omega*t*xi)
+	
+	t_array = np.arange(0, t_total+dt/2, dt)
+	ut_array = np.concatenate((ut_I,ut_II[1:]),axis = 0)
+	vt_array = np.concatenate((vt_I,vt_II[1:]),axis = 0)
+	at_array = np.concatenate((at_I,at_II[1:]),axis = 0)
+	'''
+	plt.subplot(1,3,1)
+	plt.plot(t_array, ut_array)
+	plt.subplot(1,3,2)
+	plt.plot(t_array, vt_array)
+	plt.subplot(1,3,3)
+	plt.plot(t_array, at_array)
+	plt.show()
+	'''
+	return ut_array, vt_array, at_array
 
 
 # 该函数用于计算原始数据data的信噪比

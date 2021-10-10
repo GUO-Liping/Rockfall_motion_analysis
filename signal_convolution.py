@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	disp_750kJ_MEL = np.array([0.150761888,-0.0125461,-0.219995111,-0.432371344,-0.641890498,-0.898075281,-1.097118477,-1.333303705,-1.594250287,-1.867577546,-2.113286372,-2.307567769,-2.488516129,-2.721844277,-2.957077145,-3.180881695,-3.408495685,-3.639919114,-3.83896231,-4.06371922,-4.271333654,-4.521804278,-4.729418712,-4.96560394,-5.184646692,-5.394165845,-5.591304322,-5.836060787,-6.027485105,-6.255099095,-6.417000259,-6.620805254,-6.877942397,-7.068414354,-7.234124958,-7.384597804,-7.583641,-7.773160598,-7.94744244,-8.106486525,-8.240769255,-8.383623223,-8.526477192,-8.676950038,-8.819804007,-8.964943638,-9.086845691,-9.181129311,-9.27541293,-9.391600824,-9.505883999,-9.624928972,-9.730640909,-9.843971724,-9.958254898,-10.07158571,-10.13253674,-10.18967833,-10.23443924,-10.27920015,-10.32205634,-10.37348377,-10.40967344,-10.43348243,-10.44014895,-10.45443435,-10.46776739,-10.46491031,-10.46776739,-10.46110087,-10.45062491,-10.43157771,-10.40300692,-10.37157905,-10.34777005,-10.32205634,-10.28205723,-10.25158171,-10.20491608,-10.15158394,-10.08777583,-10.04872908,-10.00015873,-9.942064782,-9.890637353,-9.842067004,-9.792544295,-9.739212147,-9.692546517,-9.637309649,-9.596358179,-9.555406708,-9.506836358,-9.45540893,-9.386839025,-9.352554073,-9.310650242,-9.27160349,-9.221128422,-9.163034475,-9.121130644,-9.079226813,-9.034465903,-9.00399039,-8.968753078,-8.932563406,-8.893516654,-8.851612823,-8.809708993,-8.77923348,-8.73256785,-8.699235257,-8.668759744,-8.623998834,-8.580190284,-8.524001056,-8.490668463,-8.449716993,-8.407813162,-8.363052252,-8.329719659,-8.28019695,-8.241150199,-8.207817606,-8.187818051,-8.164961416,-8.14591422,-8.109724548,-8.096391511,-8.076391955,-8.064963638,-8.060201839,-8.031631045,-8.00972677,-7.990679574,-7.96306114,-7.951632823,-7.926871468,-7.904014833,-7.887824717,-7.884967638,-7.860206283,-7.835444929,-7.824016611,-7.802112336,-7.776398622,-7.757351426,-7.73830423,-7.724018833,-7.707828717,-7.690686241,-7.682115003,-7.679257923,-7.665924886,-7.665924886,-7.657353648,-7.657353648,-7.645925331,-7.638306452,-7.641163532,-7.632592293,-7.626878135,-7.629735214,-7.629735214,-7.629735214,-7.624021055,-7.626878135,-7.626878135,-7.629735214,-7.629735214,-7.635449373,-7.641163532,-7.645925331,-7.651639489,-7.660210727,-7.668781965,-7.682115003,-7.69354332,-7.712590516,-7.729732992,-7.74020895,-7.768779743,-7.779255701,-7.793541098,-7.806874135,-7.812588294,-7.82687369,-7.82687369,-7.835444929,-7.854492124,-7.860206283,-7.87353932,-7.884967638,-7.899253034,-7.904014833,-7.924014389,-7.940204505,-7.948775743,-7.967822939,-7.970680019])
 
 	sample_rate = 500
-	time_updated, disp_updated = func_update_disp(time_R7_impact2nd,disp_R7_impact2nd, sample_rate)  # 更新采样频率至同一水平
+	time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)  # 更新采样频率至同一水平
 	total_time = np.max(time_updated)
 	#time_updated, disp_updated = time_750kJ_SEL1st, disp_750kJ_SEL1st  # 更新采样频率至同一水平
 
@@ -34,11 +34,12 @@ if __name__ == '__main__':
 
 	n_fit = int(0.1*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =2.8  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	key_i = int((len(time_updated)-2*n_add-1)*0.79)  # 关键索引，便于求解小波变换幅值参数0.918for12
+	scale =6  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	key_i = int((len(time_updated)-2*n_add-1)*0.93)  # 关键索引，便于求解小波变换幅值参数0.918for12
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
+
 	plt.plot(time_updated, disp_updated,'-')
 	plt.show()
 	test_utn = disp_updated
@@ -49,9 +50,9 @@ if __name__ == '__main__':
 	#plt.plot(time_updated, disp_updated,'-')
 	#plt.show()
 	analy_t = time_updated[n_add:-n_add]
-	analy_ut = func_analytical_signal(analy_t)[0]
-	analy_vt = func_analytical_signal(analy_t)[1]
-	analy_at = func_analytical_signal(analy_t)[2]
+	analy_ut = func_analytical_signal_impact(analy_t)[0]
+	analy_vt = func_analytical_signal_impact(analy_t)[1]
+	analy_at = func_analytical_signal_impact(analy_t)[2]
 
 	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(analy_ut))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	add_SNR = func_get_SNR(analy_ut, white_noise, disp_updated)
@@ -70,7 +71,16 @@ if __name__ == '__main__':
 	plt.plot(-sig_sint)
 	plt.show()
 	'''
-	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)
+
+	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)	
+	plt.plot(analy_t, analy_utn,'*')
+
+	analy_t, analy_utn = func_user_pad(analy_t, analy_utn, n_fit, 'before', n_add)
+	analy_t, analy_utn = func_user_pad(analy_t, analy_utn, n_fit, 'after',  n_add)
+	
+	plt.plot(analy_t, analy_utn,'-')
+	plt.show()
+
 	analy_vtn = func_diff_2point(analy_t, analy_utn)
 	analy_atn = func_diff_2point(analy_t, analy_vtn)
 
@@ -83,29 +93,27 @@ if __name__ == '__main__':
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
 
-	# 处理添加噪声后的解析信号
-	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale)[0]
-	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1]
-	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2]  # 手动生成高斯小波函数族,并与信号进行卷积
+###########################################################################################################################
+# 该部分对解析信号进行小波卷积与幅值因子求解，由于解析解记为真实信号，故直接计算真实解与小波卷积、有限差分结果之间的欧氏距离
+	analy_t = analy_t[n_add:-n_add]
+	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale)[0][n_add:-n_add]
+	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1][n_add:-n_add]
+	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	print('length of analy_t = ', len(analy_t))	
-	print('length of analy_utn_conv2 = ', len(analy_utn_conv2))	
-	integral_analy_utn_conv0 = analy_utn_conv0
-	integral_analy_utn_conv1 = func_integral_trapozoidal_rule(analy_t, analy_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
-	integral_analy_utn_conv2 = func_integral_trapozoidal_rule(analy_t, analy_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
-
-	analy_target0 = analy_utn-analy_utn[key_i]
+	analy_target0 = analy_ut-analy_ut[key_i]
 	analy_compare0 = analy_utn_conv0-analy_utn_conv0[key_i]
 	Amp0_analy_utn, ED0_analy_utn = func_BinarySearch_ED(analy_target0, analy_compare0, 1e-10)
 
-	analy_target1 = Amp0_analy_utn*(analy_utn_conv0-analy_utn_conv0[key_i])
-	analy_compare1 = integral_analy_utn_conv1-integral_analy_utn_conv1[key_i]
+	analy_target1 = analy_vt-analy_vt[key_i]
+	analy_compare1 = analy_utn_conv1-analy_utn_conv1[key_i]
 	Amp1_analy_utn, ED1_analy_utn = func_BinarySearch_ED(analy_target1, analy_compare1, 1e-10)
 
-	analy_target2 = Amp1_analy_utn*(analy_utn_conv1-analy_utn_conv1[key_i])
-	analy_compare2 = integral_analy_utn_conv2-integral_analy_utn_conv2[key_i]
+	analy_target2 = analy_at-analy_at[key_i]
+	analy_compare2 = analy_utn_conv2-analy_utn_conv2[key_i]
 	Amp2_analy_utn, ED2_analy_utn = func_BinarySearch_ED(analy_target2, analy_compare2, 1e-10)
+###########################################################################################################################
 
+###########################################################################################################################
 	# 处理试验捕捉的含噪信号
 	# 对含噪信号进行高斯小波卷积
 	test_time = time_updated[n_add:-n_add]
@@ -113,7 +121,7 @@ if __name__ == '__main__':
 	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1][n_add:-n_add]
 	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	# 对含噪信号高斯小波卷积结果反向积分，需要输入初始条件
+	# 实际信号并无真实解，需要对含噪信号高斯小波卷积结果反向积分，通过积分-微分之间的自洽性验证结果的准确性，积分时需要输入初始条件
 	integral_test_utn_conv0 = test_utn_conv0
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
 	integral_test_utn_conv2 = func_integral_trapozoidal_rule(test_time, test_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
@@ -129,26 +137,24 @@ if __name__ == '__main__':
 	test_target2 = Amp1_test_utn*(test_utn_conv1-test_utn_conv1[key_i])
 	test_compare2 = integral_test_utn_conv2-integral_test_utn_conv2[key_i]
 	Amp2_test_utn, ED2_test_utn = func_BinarySearch_ED(test_target2, test_compare2, 1e-10)
+###########################################################################################################################
 
-	#Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_utn-test_utn[key_i], integral_test_utn_conv0-integral_test_utn_conv0[key_i], 1e-10)
-	#Amp1_test_utn, ED1_test_utn = func_BinarySearch_ED(test_utn-test_utn[key_i], integral_test_utn_conv1-integral_test_utn_conv1[key_i], 1e-10)
-	#Amp2_test_utn, ED2_test_utn = func_BinarySearch_ED(Amp1_test_utn*(test_utn_conv1-test_utn_conv1[key_i]), integral_test_utn_conv2-integral_test_utn_conv2[key_i], 1e-10)
-
+###########################################################################################################################
 	# 绘制数值微分与小波微分对比图
 	plt.subplot(2,3,1)
-	plt.plot(analy_t, analy_utn,label = 'analy_utn')
+	plt.plot(analy_t, analy_utn[n_add:-n_add],label = 'analy_utn')
 	plt.plot(analy_t, Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
 	plt.plot(analy_t, analy_ut,label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,2)
-	plt.plot(analy_t, analy_vtn,label = 'analy_vtn')
+	plt.plot(analy_t, analy_vtn[n_add:-n_add],label = 'analy_vtn')
 	plt.plot(analy_t, Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
 	plt.plot(analy_t, analy_vt,label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,3)
-	plt.plot(analy_t, analy_atn,label = 'analy_atn')
+	plt.plot(analy_t, analy_atn[n_add:-n_add],label = 'analy_atn')
 	plt.plot(analy_t, Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
 	plt.plot(analy_t, analy_at,label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
@@ -172,7 +178,7 @@ if __name__ == '__main__':
 	# Amp, DTWDist = func_BinarySearch_DTW(signal_handle,myconv0, 1e-5)
 	# print('The Dynamic Time Warping distance between original signal and handled signal = ', EDist)	
 	wave_use = 'gaus2'
-	target_freq = np.arange(1/total_time,sample_rate/2, step=0.5)  # Nquist-Shannon采样定理
+	target_freq = np.arange(1/total_time,sample_rate/2, step=2)  # Nquist-Shannon采样定理
 	freq_c = pywt.central_frequency(wave_use)
 	scale_use = freq_c*sample_rate/target_freq
 	# scale_use = scale_use[::-1]
@@ -183,8 +189,6 @@ if __name__ == '__main__':
 		energys.append(np.linalg.norm(cwtmatr[i],ord=2))
 
 	index = freqs  # 包含每个柱子下标的序列
-	print('freqs=',freqs)
-	print('scale_use=',scale_use)		
 	values = np.array(energys)  # 柱子的高度
 	width = 5  # 柱子的宽度
 	# 绘制柱状图, 每根柱子的颜色为紫罗兰色
@@ -202,10 +206,13 @@ if __name__ == '__main__':
 	cccc0 = Amp0_test_utn*test_utn_conv0
 	cccc1 = Amp1_test_utn*test_utn_conv1
 	cccc2 = Amp2_test_utn*test_utn_conv2
-	np.savetxt('test_time', test_time)
-	np.savetxt('Amp0Myconv0', cccc0)
-	np.savetxt('Amp1Myconv1', cccc1)
-	np.savetxt('Amp2Myconv2', cccc2)
+
+	np.savetxt('analy_t.txt', analy_t)
+	np.savetxt('analy_utn.txt', analy_utn[n_add:-n_add])	
+	np.savetxt('test_time.txt', test_time)
+	np.savetxt('Amp0Myconv0.txt', cccc0)
+	np.savetxt('Amp1Myconv1.txt', cccc1)
+	np.savetxt('Amp2Myconv2.txt', cccc2)
 
 	'''
 	# 绘制卷积运算、pywt计算结果

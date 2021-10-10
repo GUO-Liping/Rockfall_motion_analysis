@@ -18,13 +18,11 @@ disp_R7_impact2nd = np.array([0,-0.01439,-0.03571,-0.05408,-0.07521,-0.0959,-0.1
 
 sample_rate = 500
 time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)
-# disp_updated = np.concatenate((np.linspace(0,0,2000), disp_updated, np.linspace(0,0,2000)))
-
 N = len(disp_updated)
 
-analy_ut = func_analytical_signal(time_updated)[0]
-analy_vt = func_analytical_signal(time_updated)[1]
-analy_at = func_analytical_signal(time_updated)[2]
+analy_ut = func_analytical_signal_impact(time_updated)[0]
+analy_vt = func_analytical_signal_impact(time_updated)[1]
+analy_at = func_analytical_signal_impact(time_updated)[2]
 
 white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(analy_ut))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 
@@ -35,7 +33,7 @@ analy_atn = func_diff_2point(time_updated, analy_vtn)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # 这一步非常重要，根据定义，对信号进行离散Fourier变换后，零频率分量正是信号的平均值
-freq_data = fft(disp_updated - np.average(disp_updated))
+freq_data = fft(analy_utn - np.average(analy_utn))
 # 如果想去掉零频率分量，需要在Fourier变换之前，原始信号减去其平均值，近似使其在零附近震荡
 # https://dsp.stackexchange.com/questions/16181/matlab-remove-the-frequency-at-zero-in-fft
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -49,7 +47,7 @@ plt.figure(figsize=(5, 4))
 #plt.title ('Time Domain Signal')
 plt.xlabel ('Time',fontsize=10)
 plt.ylabel ('Amplitude',fontsize=10)
-plt.plot (time_updated, disp_updated)
+plt.plot (time_updated, analy_utn)
 
 plt.figure(figsize=(5, 4))
 #plt.title('Frequency domain Signal')
