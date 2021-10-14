@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
 	n_fit = int(0.1*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =128  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =200  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	key_i = int((len(time_updated)-2*n_add-1)*0.93)  # 关键索引，便于求解小波变换幅值参数0.918for12
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
