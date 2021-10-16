@@ -32,10 +32,10 @@ if __name__ == '__main__':
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
 	plt.plot(time_updated, disp_updated,'*')
 
-	n_fit = int(0.1*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n_fit = int(0.05*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =200  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	key_i = int((len(time_updated)-2*n_add-1)*0.93)  # 关键索引，便于求解小波变换幅值参数0.918for12
+	scale =6  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
@@ -84,11 +84,6 @@ if __name__ == '__main__':
 	analy_vtn = func_diff_2point(analy_t, analy_utn)
 	analy_atn = func_diff_2point(analy_t, analy_vtn)
 
-	print('SNR of analy signal = ', func_SNR(analy_ut))	
-	print('added SNR = ', add_SNR)
-	print('SNR of noise-added signal = ', func_SNR(analy_utn))
-	print('SNR of tracking signal = ', func_SNR(disp_updated))	
-
 	#plt.plot(time_updated,analy_ut-1.75, label="analy_ut")
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
@@ -126,7 +121,7 @@ if __name__ == '__main__':
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
 	integral_test_utn_conv2 = func_integral_trapozoidal_rule(test_time, test_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
 
-	test_target0 = test_utn[n_add:-n_add]-test_utn[key_i]
+	test_target0 = test_utn[n_add:-n_add]-test_utn[key_i+n_add]
 	test_compare0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
 	Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_target0, test_compare0, 1e-10)
 
@@ -200,8 +195,28 @@ if __name__ == '__main__':
 
 	#print('SNR of the handle signal is', func_SNR(disp_updated))
 	#print('SNR of the handled signal is', func_SNR(Amp*myconv0))
+########################################################################################
+#### 打印及导出数据
+	print('SNR of noise-added analytical displacement = ', func_SNR(analy_utn[n_add:-n_add]))
+	print('SNR of noise-added analytical velocity = ', func_SNR(analy_vtn[n_add:-n_add]))
+	print('SNR of noise-added analytical acceleration = ', func_SNR(analy_atn[n_add:-n_add]))
 
-	# 绘制数值微分，小波微分结果
+	print('ED between analy disp and noise-added analy disp = ', np.linalg.norm(analy_utn[n_add:-n_add]-analy_ut))
+	print('ED between analy velo and noise-added analy velo = ', np.linalg.norm(analy_vtn[n_add:-n_add]-analy_vt))
+	print('ED between analy acce and noise-added analy acce = ', np.linalg.norm(analy_atn[n_add:-n_add]-analy_at))
+
+	print('SNR of tracked displacement = ', func_SNR(test_utn[n_add:-n_add]))
+	print('SNR of finite-diff velocity = ', func_SNR(test_vtn[n_add:-n_add]))
+	print('SNR of finite-diff acceleration = ', func_SNR(test_atn[n_add:-n_add]))
+
+	print('SNR of Gaussian displacement = ', func_SNR(Amp0_test_utn*test_utn_conv0))
+	print('SNR of Gaussian velocity = ', func_SNR(Amp1_test_utn*test_utn_conv1))
+	print('SNR of Gaussian acceleration = ', func_SNR(Amp2_test_utn*test_utn_conv2))
+
+	print('ED between test disp and gauss disp = ', ED0_test_utn)
+	print('ED between test velo and gauss velo = ', ED1_test_utn)
+	print('ED between test acce and gauss acce = ', ED2_test_utn)
+
 
 	cccc0 = Amp0_test_utn*test_utn_conv0
 	cccc1 = Amp1_test_utn*test_utn_conv1
