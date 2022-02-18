@@ -218,34 +218,42 @@ def func_conv_gauss_wave(data_array, scale):
 	timestep = (upper-lower)/(s*10)
 	t = np.arange(lower,upper+0.5*timestep,timestep)
 	
-	C = 1/np.sqrt(np.pi)  # 正则化系数
-	theta_t = C * np.exp(-t**2)  # 一阶高斯母小波
-	theta_st = C/np.sqrt(s) * np.exp(-t**2/(s**2))  # 一阶高斯小波族
+	C0 = 1/np.sqrt(np.pi)  # 能量归一化系数
+	theta_t = C0 * np.exp(-t**2)  # 高斯函数-实数域能量归一化
+	theta_st = C0 * np.exp(-t**2/(s**2)) / np.sqrt(s)  # 高斯函数尺寸缩放
 	
-	C1 = np.sqrt(np.sqrt(2/np.pi))
-	psi_1st = C1 * (-2*t) * np.exp(-t**2)
-	psi_1st_st = (-1)**1*C1 * np.exp(-t**2/s**2) * (2*t/s) / (np.sqrt(s))
+	C1 = 1/np.sqrt(np.sqrt(2/np.pi))  # 能量归一化系数
+	psi_1st = C1 * np.exp(-t**2) * (-2*t)  # 高斯函数一阶导数-实数域能量归一化
+	psi_1st_st = (-1)**2*C1 * np.exp(-t**2/s**2) * (-2*t/s) / (np.sqrt(s))  # 一阶高斯小波
 	
-	C2 = np.sqrt(np.sqrt(2/(9*np.pi)))
-	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)
-	psi_2nd_st = (-1)**2*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))
+	C2 = np.sqrt(np.sqrt(2/(9*np.pi)))  # 能量归一化系数
+	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)  # 高斯函数二阶导数-实数域能量归一化
+	psi_2nd_st = (-1)**3*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))  # 二阶高斯小波
 
-	#plt.subplot(1,3,1)
+	C3 = np.sqrt(np.sqrt(2/(225*np.pi)))  # 能量归一化系数
+	psi_3rd = C3 * np.exp(-t**2) * (-8*t**3 + 12*t)  # 高斯函数三阶导数-实数域能量归一化
+	psi_3rd_st = (-1)**4*C3 * np.exp(-t**2/s**2) * (-8*t**3/s**3 + 12*t/s) / (np.sqrt(s))  # 三阶高斯小波
+
+	#plt.subplot(1,4,1)
 	#plt.plot(t,theta_st,label = 'gauss')
 	#plt.legend(loc="best",fontsize=8)
-	#plt.subplot(1,3,2)
+	#plt.subplot(1,4,2)
 	#plt.plot(t,psi_1st_st,label = 'gauss1')
 	#plt.legend(loc="best",fontsize=8)
-	#plt.subplot(1,3,3)
+	#plt.subplot(1,4,3)
 	#plt.plot(t,psi_2nd_st,label = 'gauss2')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,4,4)
+	#plt.plot(t,psi_3rd_st,label = 'gauss3')
 	#plt.legend(loc="best",fontsize=8)
 	#plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv2 = np.convolve(data_array, psi_2nd_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
+	data_conv3 = np.convolve(data_array, psi_3rd_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 
-	return data_conv0, data_conv1, data_conv2
+	return data_conv0, data_conv1, data_conv2, data_conv3
 
 
 # 该函数用于四舍五入取整函数，并取到整数位
@@ -349,47 +357,47 @@ def func_update_disp(para_time, para_disp, target_freq):
 # Dynamic Time Warping动态时间规划距离，用于时间序列相似性，不等长度数据序列
 # 该程序用于二分法求解两组离散数组DTW距离最小时的幅度参数-小波微分论文专用
 # ！！！！！！！！！！！！！！需要调用dtw库！！！！！！！！！！！！！ #
-def func_BinarySearch_DTW(source_array,target_array, para_threshold):
+def func_BinarySearch_DTW(source_array,convol_array, para_threshold):
 	import dtw
 	tail_index = int(len(source_array)/100)
 	source = source_array[tail_index:-tail_index]
-	target = target_array[tail_index:-tail_index]
+	convol = convol_array[tail_index:-tail_index]
 
 	num = 3
 	low = 0
 	maxs = np.amax(np.abs(source))
-	maxt = np.amax(np.abs(target))
+	maxt = np.amax(np.abs(convol))
 	if maxs > maxt:
-		height = 2 * maxs / maxt
+		up = 2 * maxs / maxt
 	elif maxs < maxt:
-		height = 2 * maxt / maxs
+		up = 2 * maxt / maxs
 	else:
-		height = 1
-	dAmp = (height-low)/num
-	AmpArray = np.arange(low, height+0.5*dAmp, dAmp)
+		up = 1
+	dAmp = (up-low)/num
+	AmpArray = np.arange(low, up+0.5*dAmp, dAmp)
 	dist = np.zeros(len(AmpArray))
 	for i in range(num+1):
-		para_dtw = dtw.dtw(source, AmpArray[i]*target)
+		para_dtw = dtw.dtw(source, AmpArray[i]*convol)
 		dist[i] = para_dtw.distance
 	minDist = np.amin(dist)
 	minDistIndex = np.argmin(dist)
 
 	count = 0
-	while height-low > para_threshold and count < 500:
+	while up-low > para_threshold and count < 500:
 		if minDist == dist[0]:
 			low = AmpArray[0]
-			height = AmpArray[1]
+			up = AmpArray[1]
 		elif minDist == dist[-1]:
 			low = AmpArray[-2]
-			height = AmpArray[-1]
+			up = AmpArray[-1]
 		else:
 			low = AmpArray[minDistIndex-1]
-			height = AmpArray[minDistIndex+1]
+			up = AmpArray[minDistIndex+1]
 
-		dAmp = (height-low)/num
-		AmpArray = np.arange(low, height+0.5*dAmp, dAmp)	
+		dAmp = (up-low)/num
+		AmpArray = np.arange(low, up+0.5*dAmp, dAmp)	
 		for i in range(num+1):
-			para_dtw = dtw.dtw(source, AmpArray[i]*target)
+			para_dtw = dtw.dtw(source, AmpArray[i]*convol)
 			dist[i] = para_dtw.distance
 			count = count + 1
 			# print('It is the',count,'-th Iteration')
@@ -398,60 +406,65 @@ def func_BinarySearch_DTW(source_array,target_array, para_threshold):
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
 
-	Amp = (low+height)/2
+	Amp = (low+up)/2
 	Dist = minDist
 	return Amp, Dist
 
 
 # The Euclidean distance欧拉距离，用于时间序列相似性，等长度数据序列
-# 二分法求解两组离散数组欧拉距离最小时的幅度参数-小波微分论文专用
-def func_BinarySearch_ED(source_array,target_array, para_threshold): 
+# 三分法求解两组离散数组欧拉距离最小时的幅度参数-小波微分论文专用
+def func_BinarySearch_ED(source_array,convol_array, para_threshold): 
 	tail_index = int(len(source_array)/100)
 	source = source_array[tail_index:-tail_index]
-	target = target_array[tail_index:-tail_index]
+	convol = convol_array[tail_index:-tail_index]
 
 	num = 3
 	low = 0
-	maxs = np.amax(np.abs(source))
-	maxt = np.amax(np.abs(target))
+	maxs = np.amax(source) - np.amin(source)
+	maxt = np.amax(convol) - np.amin(convol)
 	if maxs > maxt:
-		height = 2 * maxs / maxt  # 三分法上边界取两数组峰值倍数的两倍
+		up = 2 * maxs / maxt  # 三分法上边界取两数组峰值倍数的两倍
 	elif maxs < maxt:
-		height = 2 * maxt / maxs  # 三分法上边界取两数组峰值倍数的两倍
+		up = 2 * maxt / maxs  # 三分法上边界取两数组峰值倍数的两倍
 	else:
-		height = 1
-	dAmp = (height-low)/num
-	AmpArray = np.arange(low, height+0.5*dAmp, dAmp)
-	dist = np.zeros(len(AmpArray))
+		up = 2 * 1
+	dAmp = (up-low)/num
+	AmpArray = np.arange(low, up+0.5*dAmp, dAmp)
+	dist = np.zeros(len(AmpArray))+1e10
 	for i in range(num+1):
-		para_ed = np.sqrt(np.sum((source - AmpArray[i]*target)**2))
+		convol_scale = AmpArray[i]*convol
+		source_max = (source[np.argmax(source)-1] + np.amax(source) + source[np.argmax(source)+1]) / 3
+		convol_move = convol_scale - (np.amax(convol_scale)-source_max)
+		para_ed = np.sqrt(np.sum((source - convol_move)**2))
 		dist[i] = para_ed
 	minDist = np.amin(dist)
 	minDistIndex = np.argmin(dist)
 
 	count = 0
-	while height-low > para_threshold and count < 500:
+	while up-low > para_threshold and count < 500:
 		if minDist == dist[0]:
 			low = AmpArray[0]
-			height = AmpArray[1]
+			up = AmpArray[1]
 		elif minDist == dist[-1]:
-			low = AmpArray[-2]
-			height = AmpArray[-1]
+			low = AmpArray[-1]
+			up = AmpArray[-2]
 		else:
 			low = AmpArray[minDistIndex-1]
-			height = AmpArray[minDistIndex+1]
+			up = AmpArray[minDistIndex+1]
 
-		dAmp = (height-low)/num
-		AmpArray = np.arange(low, height+0.5*dAmp, dAmp)	
-		for i in range(num+1):
-			para_ed = np.sqrt(np.sum((source - AmpArray[i]*target)**2))
-			dist[i] = para_ed
+		dAmp = (up-low)/num
+		AmpArray = np.arange(low, up+0.5*dAmp, dAmp)	
+		for j in range(num+1):
+			convol_scale = AmpArray[j]*convol
+			convol_move = convol_scale - (np.amax(convol_scale)-source_max)
+			para_ed = np.sqrt(np.sum((source - convol_move)**2))
+			dist[j] = para_ed
 			count = count + 1
-			#print('It is the',count,'-th Iteration, ', 'error = ', height-low)
+			#print('It is the',count,'-th Iteration, ', 'error = ', up-low)
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
 	
-	print('It is the',count,'-th Iteration, ', 'error = ', height-low)
-	Amp = (low+height)/2
+	print('It is the',count,'-th Iteration, ', 'error = ', up-low)
+	Amp = (low+up)/2
 	Dist = minDist
-	return Amp, Dist
+	return Amp, Dist, convol_move

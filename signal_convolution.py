@@ -34,8 +34,8 @@ if __name__ == '__main__':
 
 	n_fit = int(0.05*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =6  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
+	scale =2  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
@@ -95,17 +95,17 @@ if __name__ == '__main__':
 	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1][n_add:-n_add]
 	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	analy_target0 = analy_ut-analy_ut[key_i]
-	analy_compare0 = analy_utn_conv0-analy_utn_conv0[key_i]
-	Amp0_analy_utn, ED0_analy_utn = func_BinarySearch_ED(analy_target0, analy_compare0, 1e-10)
+	analy_target0 = analy_ut
+	analy_compare0 = analy_utn_conv0
+	Amp0_analy_utn, ED0_analy_utn, Amp0_analy = func_BinarySearch_ED(analy_target0, analy_compare0, 1e-10)
 
-	analy_target1 = analy_vt-analy_vt[key_i]
-	analy_compare1 = analy_utn_conv1-analy_utn_conv1[key_i]
-	Amp1_analy_utn, ED1_analy_utn = func_BinarySearch_ED(analy_target1, analy_compare1, 1e-10)
+	analy_target1 = analy_vt
+	analy_compare1 = analy_utn_conv1
+	Amp1_analy_utn, ED1_analy_utn, Amp1_analy = func_BinarySearch_ED(analy_target1, analy_compare1, 1e-10)
 
-	analy_target2 = analy_at-analy_at[key_i]
-	analy_compare2 = analy_utn_conv2-analy_utn_conv2[key_i]
-	Amp2_analy_utn, ED2_analy_utn = func_BinarySearch_ED(analy_target2, analy_compare2, 1e-10)
+	analy_target2 = analy_at
+	analy_compare2 = analy_utn_conv2
+	Amp2_analy_utn, ED2_analy_utn, Amp2_analy = func_BinarySearch_ED(analy_target2, analy_compare2, 1e-10)
 ###########################################################################################################################
 
 ###########################################################################################################################
@@ -115,23 +115,42 @@ if __name__ == '__main__':
 	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale)[0][n_add:-n_add]
 	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1][n_add:-n_add]
 	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+	test_utn_conv3 = func_conv_gauss_wave(test_utn, scale)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
 	# 实际信号并无真实解，需要对含噪信号高斯小波卷积结果反向积分，通过积分-微分之间的自洽性验证结果的准确性，积分时需要输入初始条件
 	integral_test_utn_conv0 = test_utn_conv0
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
 	integral_test_utn_conv2 = func_integral_trapozoidal_rule(test_time, test_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
+	integral_test_utn_conv3 = func_integral_trapozoidal_rule(test_time, test_utn_conv3, 0)  # 梯形法则再次积分，初始条件为0。
 
-	test_target0 = test_utn[n_add:-n_add]-test_utn[key_i+n_add]
-	test_compare0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
-	Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_target0, test_compare0, 1e-10)
+	test_source0 = test_utn[n_add:-n_add]
+	test_convol0 = integral_test_utn_conv0
 
-	test_target1 = Amp0_test_utn*(test_utn_conv0-test_utn_conv0[key_i])
-	test_compare1 = integral_test_utn_conv1-integral_test_utn_conv1[key_i]
-	Amp1_test_utn, ED1_test_utn = func_BinarySearch_ED(test_target1, test_compare1, 1e-10)
+	Amp0_test_utn, ED0_test_utn, Amp0_convol = func_BinarySearch_ED(test_source0, test_convol0, 1e-10)
+	Amp1_test_utn, ED1_test_utn, Amp1_convol = func_BinarySearch_ED(Amp0_convol[n_add:-n_add], integral_test_utn_conv1, 1e-10)
+	Amp2_test_utn, ED2_test_utn, Amp2_convol = func_BinarySearch_ED(Amp1_convol[n_add:-n_add], integral_test_utn_conv2, 1e-10)
+	Amp3_test_utn, ED3_test_utn, Amp3_convol = func_BinarySearch_ED(Amp2_convol[n_add:-n_add], integral_test_utn_conv3, 1e-10)
 
-	test_target2 = Amp1_test_utn*(test_utn_conv1-test_utn_conv1[key_i])
-	test_compare2 = integral_test_utn_conv2-integral_test_utn_conv2[key_i]
-	Amp2_test_utn, ED2_test_utn = func_BinarySearch_ED(test_target2, test_compare2, 1e-10)
+	#test_source0 = test_utn[n_add:-n_add]-test_utn[key_i+n_add]
+	#test_convol0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
+	#Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_source0, test_convol0, 1e-10)
+
+	#test_source0 = test_utn[n_add:-n_add]-test_utn[key_i+n_add]
+	#test_convol0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
+	#Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_source0, test_convol0, 1e-10)
+#
+	#test_source1 = Amp0_test_utn*test_convol0
+	#test_convol1 = integral_test_utn_conv1-integral_test_utn_conv1[key_i]
+	#Amp1_test_utn, ED1_test_utn = func_BinarySearch_ED(test_source1, test_convol1, 1e-10)
+#
+	#test_source2 = Amp1_test_utn*(test_utn_conv1-test_utn_conv1[key_i])
+	#test_convol2 = integral_test_utn_conv2-integral_test_utn_conv2[key_i]
+	#Amp2_test_utn, ED2_test_utn = func_BinarySearch_ED(test_source2, test_convol2, 1e-10)
+#
+	#test_source3 = Amp2_test_utn*(test_utn_conv2-test_utn_conv2[key_i])
+	#test_convol3 = integral_test_utn_conv3-integral_test_utn_conv3[key_i]
+	#Amp3_test_utn, ED3_test_utn = func_BinarySearch_ED(test_convol2, test_convol3, 1e-10)
+
 ###########################################################################################################################
 
 ###########################################################################################################################
@@ -156,17 +175,21 @@ if __name__ == '__main__':
 
 	plt.subplot(2,3,4)
 	plt.plot(test_time, test_utn[n_add:-n_add],label = 'test_utn')
-	plt.plot(test_time, Amp0_test_utn*test_utn_conv0,label = 'test_utn_conv0')
+	plt.plot(test_time, Amp0_convol,label = 'test_utn_conv0')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,5)
 	plt.plot(test_time, test_vtn[n_add:-n_add],label = 'test_vtn')
-	plt.plot(test_time, Amp1_test_utn*test_utn_conv1,label = 'test_utn_conv1')
+	plt.plot(test_time, Amp1_convol,label = 'test_utn_conv1')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,6)
 	plt.plot(test_time, test_atn[n_add:-n_add],label = 'test_atn')
-	plt.plot(test_time, Amp2_test_utn*test_utn_conv2,label = 'test_utn_conv2')
+	plt.plot(test_time, Amp2_convol,label = 'test_utn_conv2')
+	plt.legend(loc="best",fontsize=8)
+	plt.show()
+
+	plt.plot(test_time, Amp3_convol,label = 'test_utn_conv3')
 	plt.legend(loc="best",fontsize=8)
 	plt.show()
 
