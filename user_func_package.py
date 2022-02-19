@@ -224,15 +224,15 @@ def func_conv_gauss_wave(data_array, scale):
 	
 	C1 = 1/np.sqrt(np.sqrt(2/np.pi))  # 能量归一化系数
 	psi_1st = C1 * np.exp(-t**2) * (-2*t)  # 高斯函数一阶导数-实数域能量归一化
-	psi_1st_st = (-1)**2*C1 * np.exp(-t**2/s**2) * (-2*t/s) / (np.sqrt(s))  # 一阶高斯小波
+	psi_1st_st = C1 * np.exp(-t**2/s**2) * (-2*t/s) / (np.sqrt(s))  # 一阶高斯小波
 	
 	C2 = np.sqrt(np.sqrt(2/(9*np.pi)))  # 能量归一化系数
 	psi_2nd = C2 * np.exp(-t**2) * (4*t**2 - 2)  # 高斯函数二阶导数-实数域能量归一化
-	psi_2nd_st = (-1)**3*C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))  # 二阶高斯小波
+	psi_2nd_st = C2 * np.exp(-t**2/s**2) * (4*t**2/s**2 - 2) / (np.sqrt(s))  # 二阶高斯小波
 
 	C3 = np.sqrt(np.sqrt(2/(225*np.pi)))  # 能量归一化系数
 	psi_3rd = C3 * np.exp(-t**2) * (-8*t**3 + 12*t)  # 高斯函数三阶导数-实数域能量归一化
-	psi_3rd_st = (-1)**4*C3 * np.exp(-t**2/s**2) * (-8*t**3/s**3 + 12*t/s) / (np.sqrt(s))  # 三阶高斯小波
+	psi_3rd_st = C3 * np.exp(-t**2/s**2) * (-8*t**3/s**3 + 12*t/s) / (np.sqrt(s))  # 三阶高斯小波
 
 	#plt.subplot(1,4,1)
 	#plt.plot(t,theta_st,label = 'gauss')
@@ -414,12 +414,10 @@ def func_BinarySearch_DTW(source_array,convol_array, para_threshold):
 # The Euclidean distance欧拉距离，用于时间序列相似性，等长度数据序列
 # 三分法求解两组离散数组欧拉距离最小时的幅度参数-小波微分论文专用
 def func_BinarySearch_ED(source_array,convol_array, para_threshold): 
-	tail_index = int(len(source_array)/100)
-	source = source_array[tail_index:-tail_index]
-	convol = convol_array[tail_index:-tail_index]
-
-	num = 3
+	source = source_array
+	convol = convol_array
 	low = 0
+	num = 3
 	maxs = np.amax(source) - np.amin(source)
 	maxt = np.amax(convol) - np.amin(convol)
 	if maxs > maxt:
@@ -433,8 +431,8 @@ def func_BinarySearch_ED(source_array,convol_array, para_threshold):
 	dist = np.zeros(len(AmpArray))+1e10
 	for i in range(num+1):
 		convol_scale = AmpArray[i]*convol
-		source_max = (source[np.argmax(source)-1] + np.amax(source) + source[np.argmax(source)+1]) / 3
-		convol_move = convol_scale - (np.amax(convol_scale)-source_max)
+		source_index= (source[int(len(source)/2)-1] + source[int(len(source)/2)] + source[int(len(source)/2)+1]) / 3
+		convol_move = convol_scale - (convol_scale[int(len(source)/2)]-source_index)
 		para_ed = np.sqrt(np.sum((source - convol_move)**2))
 		dist[i] = para_ed
 	minDist = np.amin(dist)
@@ -456,7 +454,7 @@ def func_BinarySearch_ED(source_array,convol_array, para_threshold):
 		AmpArray = np.arange(low, up+0.5*dAmp, dAmp)	
 		for j in range(num+1):
 			convol_scale = AmpArray[j]*convol
-			convol_move = convol_scale - (np.amax(convol_scale)-source_max)
+			convol_move = convol_scale - (convol_scale[int(len(source)/2)]-source_index)
 			para_ed = np.sqrt(np.sum((source - convol_move)**2))
 			dist[j] = para_ed
 			count = count + 1
