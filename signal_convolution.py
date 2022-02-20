@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	disp_750kJ_MEL = np.array([0.150761888,-0.0125461,-0.219995111,-0.432371344,-0.641890498,-0.898075281,-1.097118477,-1.333303705,-1.594250287,-1.867577546,-2.113286372,-2.307567769,-2.488516129,-2.721844277,-2.957077145,-3.180881695,-3.408495685,-3.639919114,-3.83896231,-4.06371922,-4.271333654,-4.521804278,-4.729418712,-4.96560394,-5.184646692,-5.394165845,-5.591304322,-5.836060787,-6.027485105,-6.255099095,-6.417000259,-6.620805254,-6.877942397,-7.068414354,-7.234124958,-7.384597804,-7.583641,-7.773160598,-7.94744244,-8.106486525,-8.240769255,-8.383623223,-8.526477192,-8.676950038,-8.819804007,-8.964943638,-9.086845691,-9.181129311,-9.27541293,-9.391600824,-9.505883999,-9.624928972,-9.730640909,-9.843971724,-9.958254898,-10.07158571,-10.13253674,-10.18967833,-10.23443924,-10.27920015,-10.32205634,-10.37348377,-10.40967344,-10.43348243,-10.44014895,-10.45443435,-10.46776739,-10.46491031,-10.46776739,-10.46110087,-10.45062491,-10.43157771,-10.40300692,-10.37157905,-10.34777005,-10.32205634,-10.28205723,-10.25158171,-10.20491608,-10.15158394,-10.08777583,-10.04872908,-10.00015873,-9.942064782,-9.890637353,-9.842067004,-9.792544295,-9.739212147,-9.692546517,-9.637309649,-9.596358179,-9.555406708,-9.506836358,-9.45540893,-9.386839025,-9.352554073,-9.310650242,-9.27160349,-9.221128422,-9.163034475,-9.121130644,-9.079226813,-9.034465903,-9.00399039,-8.968753078,-8.932563406,-8.893516654,-8.851612823,-8.809708993,-8.77923348,-8.73256785,-8.699235257,-8.668759744,-8.623998834,-8.580190284,-8.524001056,-8.490668463,-8.449716993,-8.407813162,-8.363052252,-8.329719659,-8.28019695,-8.241150199,-8.207817606,-8.187818051,-8.164961416,-8.14591422,-8.109724548,-8.096391511,-8.076391955,-8.064963638,-8.060201839,-8.031631045,-8.00972677,-7.990679574,-7.96306114,-7.951632823,-7.926871468,-7.904014833,-7.887824717,-7.884967638,-7.860206283,-7.835444929,-7.824016611,-7.802112336,-7.776398622,-7.757351426,-7.73830423,-7.724018833,-7.707828717,-7.690686241,-7.682115003,-7.679257923,-7.665924886,-7.665924886,-7.657353648,-7.657353648,-7.645925331,-7.638306452,-7.641163532,-7.632592293,-7.626878135,-7.629735214,-7.629735214,-7.629735214,-7.624021055,-7.626878135,-7.626878135,-7.629735214,-7.629735214,-7.635449373,-7.641163532,-7.645925331,-7.651639489,-7.660210727,-7.668781965,-7.682115003,-7.69354332,-7.712590516,-7.729732992,-7.74020895,-7.768779743,-7.779255701,-7.793541098,-7.806874135,-7.812588294,-7.82687369,-7.82687369,-7.835444929,-7.854492124,-7.860206283,-7.87353932,-7.884967638,-7.899253034,-7.904014833,-7.924014389,-7.940204505,-7.948775743,-7.967822939,-7.970680019])
 
 	sample_rate = 500
-	time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)  # 更新采样频率至同一水平
+	time_updated, disp_updated = func_update_disp(time_R7_impact2nd,disp_R7_impact2nd, sample_rate)  # 更新采样频率至同一水平
 	total_time = np.max(time_updated)
 	#time_updated, disp_updated = time_750kJ_SEL1st, disp_750kJ_SEL1st  # 更新采样频率至同一水平
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
 	n_fit = int(0.05*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =10  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =2  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
@@ -118,20 +118,21 @@ if __name__ == '__main__':
 	test_utn_conv3 = func_conv_gauss_wave(test_utn, scale)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
 	# 实际信号并无真实解，需要对含噪信号高斯小波卷积结果反向积分，通过积分-微分之间的自洽性验证结果的准确性，积分时需要输入初始条件
-	integral_test_utn_conv0 = test_utn_conv0
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
 	integral_test_utn_conv2 = func_integral_trapozoidal_rule(test_time, test_utn_conv2, 0)  # 梯形法则再次积分，初始条件为0。
 	integral_test_utn_conv3 = func_integral_trapozoidal_rule(test_time, test_utn_conv3, 0)  # 梯形法则再次积分，初始条件为0。
-	plt.plot(integral_test_utn_conv3)
-	plt.plot(test_utn_conv2)
-	plt.show()
+
 	test_source = test_utn[n_add:-n_add]
 
-	Amp0_test_utn, ED0_test_utn, Amp0_convol = func_BinarySearch_ED(test_source, integral_test_utn_conv0, 1e-10)
+	Amp0_test_utn, ED0_test_utn, Amp0_convol = func_BinarySearch_ED(test_source, test_utn_conv0, 1e-10)
 	Amp1_test_utn, ED1_test_utn, Amp1_convol = func_BinarySearch_ED(Amp0_convol, integral_test_utn_conv1, 1e-10)
-	Amp2_test_utn, ED2_test_utn, Amp2_convol = func_BinarySearch_ED(Amp1_convol, integral_test_utn_conv2, 1e-10)
-	Amp3_test_utn, ED3_test_utn, Amp3_convol = func_BinarySearch_ED(Amp2_convol, integral_test_utn_conv3, 1e-10)
+	Amp2_test_utn, ED2_test_utn, Amp2_convol = func_BinarySearch_ED(Amp1_test_utn*test_utn_conv1, integral_test_utn_conv2, 1e-10)
+	Amp3_test_utn, ED3_test_utn, Amp3_convol = func_BinarySearch_ED(Amp2_test_utn*test_utn_conv2, integral_test_utn_conv3, 1e-10)
 
+	plt.plot(Amp2_test_utn*test_utn_conv2,label = 'Amp2_test_utn*')
+	plt.plot(Amp3_convol,label = 'Amp3_convol')
+	plt.legend()
+	plt.show()
 	#test_source0 = test_utn[n_add:-n_add]-test_utn[key_i+n_add]
 	#test_convol0 = integral_test_utn_conv0 - integral_test_utn_conv0[key_i]
 	#Amp0_test_utn, ED0_test_utn = func_BinarySearch_ED(test_source0, test_convol0, 1e-10)

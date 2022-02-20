@@ -413,9 +413,7 @@ def func_BinarySearch_DTW(source_array,convol_array, para_threshold):
 
 # The Euclidean distance欧拉距离，用于时间序列相似性，等长度数据序列
 # 三分法求解两组离散数组欧拉距离最小时的幅度参数-小波微分论文专用
-def func_BinarySearch_ED(source_array,convol_array, para_threshold): 
-	source = source_array
-	convol = convol_array
+def func_BinarySearch_ED(source,convol, para_threshold): 
 	low = 0
 	num = 3
 	maxs = np.amax(source) - np.amin(source)
@@ -429,17 +427,22 @@ def func_BinarySearch_ED(source_array,convol_array, para_threshold):
 	dAmp = (up-low)/num
 	AmpArray = np.arange(low, up+0.5*dAmp, dAmp)
 	dist = np.zeros(len(AmpArray))+1e10
+	plt.plot(source)
+	plt.show()
+	ref_index = np.argmax(source)  # int(len(source)/5)
+
 	for i in range(num+1):
 		convol_scale = AmpArray[i]*convol
-		source_index= (source[int(len(source)/2)-1] + source[int(len(source)/2)] + source[int(len(source)/2)+1]) / 3
-		convol_move = convol_scale - (convol_scale[int(len(source)/2)]-source_index)
+		source_index= source[ref_index]
+		convol_move = convol_scale - (convol_scale[ref_index]-source_index)
 		para_ed = np.sqrt(np.sum((source - convol_move)**2))
 		dist[i] = para_ed
 	minDist = np.amin(dist)
 	minDistIndex = np.argmin(dist)
 
 	count = 0
-	while up-low > para_threshold and count < 500:
+	error = up-low
+	while error > para_threshold and count < 500:
 		if minDist == dist[0]:
 			low = AmpArray[0]
 			up = AmpArray[1]
@@ -454,15 +457,14 @@ def func_BinarySearch_ED(source_array,convol_array, para_threshold):
 		AmpArray = np.arange(low, up+0.5*dAmp, dAmp)	
 		for j in range(num+1):
 			convol_scale = AmpArray[j]*convol
-			convol_move = convol_scale - (convol_scale[int(len(source)/2)]-source_index)
+			convol_move = convol_scale - (convol_scale[ref_index]-source_index)
 			para_ed = np.sqrt(np.sum((source - convol_move)**2))
 			dist[j] = para_ed
 			count = count + 1
-			#print('It is the',count,'-th Iteration, ', 'error = ', up-low)
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
-	
-	print('It is the',count,'-th Iteration, ', 'error = ', up-low)
+		error = up-low
+	print('It is the',count,'-th Iteration, ', 'error = ', error)
 	Amp = (low+up)/2
 	Dist = minDist
 	return Amp, Dist, convol_move
