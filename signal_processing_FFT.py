@@ -60,7 +60,7 @@ i_index = np.arange(4)
 j_index = 5**i_index
 
 i50, i90, i99 = func_freqs_divide(amp_freqs)
-f_i = np.array([0,freqs[i50],freqs[i90],freqs[i99],250])
+f_i = np.array([0.001,freqs[i50],freqs[i90],freqs[i99],250])
 
 fc_g1 = 0.254  # 一阶高斯小波的中心频率
 fc_g2 = 0.339  # 二阶高斯小波的中心频率
