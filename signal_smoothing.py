@@ -21,25 +21,35 @@ sample_rate = 500
 time_updated, disp_updated = func_update_disp(time_R7_impact2nd,disp_R7_impact2nd, sample_rate)
 N = len(disp_updated)
 
+diff_ori_disp = disp_updated
 diff_1st_disp = func_diff_2point(time_updated, disp_updated)
 diff_2nd_disp = func_diff_2point(time_updated, diff_1st_disp)
 
-smooth_1st_disp = savgol_filter(diff_1st_disp, 25, 5, mode='nearest')
-smooth_2nd_disp = savgol_filter(diff_2nd_disp, 25, 5, mode='nearest')
+smoothSV_ori_disp = savgol_filter(diff_ori_disp, 85, 5, mode='nearest')
+smoothSV_1st_disp = savgol_filter(diff_1st_disp, 85, 5, mode='nearest')
+smoothSV_2nd_disp = savgol_filter(diff_2nd_disp, 85, 5, mode='nearest')
+
+smoothMV_ori_disp = func_move_average(diff_ori_disp, 100, mode='nearest')
+smoothMV_1st_disp = func_move_average(diff_1st_disp, 100, mode='nearest')
+smoothMV_2nd_disp = func_move_average(diff_2nd_disp, 100, mode='nearest')
 
 # 绘制数值微分与小波微分对比图
 plt.subplot(2,3,1)
 plt.plot(time_updated, disp_updated,label = 'disp_updated')
+plt.plot(time_updated, smoothMV_ori_disp,label = 'smoothMV_ori_disp')
+plt.plot(time_updated, smoothSV_ori_disp,label = 'smoothSV_ori_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.subplot(2,3,2)
 plt.plot(time_updated, diff_1st_disp,label = 'diff_1st_disp')
-plt.plot(time_updated, smooth_1st_disp,label = 'smooth_1st_disp')
+plt.plot(time_updated, smoothMV_1st_disp,label = 'smoothMV_1st_disp')
+plt.plot(time_updated, smoothSV_1st_disp,label = 'smoothSV_1st_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.subplot(2,3,3)
 plt.plot(time_updated, diff_2nd_disp,label = 'diff_2nd_disp')
-plt.plot(time_updated, smooth_2nd_disp,label = 'smooth_2nd_disp')
+plt.plot(time_updated, smoothMV_2nd_disp,label = 'smoothMV_2nd_disp')
+plt.plot(time_updated, smoothSV_2nd_disp,label = 'smoothSV_2nd_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.show()

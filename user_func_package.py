@@ -468,3 +468,31 @@ def func_BinarySearch_ED(source,convol, para_threshold):
 	Amp = (low+up)/2
 	Dist = minDist
 	return Amp, Dist, convol_move
+
+
+def func_move_average(arr, window_size, mode):
+	if mode=='nearest':
+		pass
+	else:
+		raise ValueError
+	i = 0
+	# Initialize an empty list to store moving averages
+	moving_averages = []
+	  
+	# Loop through the array t o
+	#consider every window of size 3
+	while i < (len(arr) - window_size + 1):
+	  
+	    # Calculate the average of current window
+	    window_average = round(np.sum(arr[i:i+window_size]) / window_size, 2)
+	      
+	    # Store the average of current
+	    # window in moving average list
+	    moving_averages.append(window_average)
+	      
+	    # Shift window to right by one position
+	    i += 1
+	list_before = [moving_averages[0]]*int(window_size/2)
+	list_after = [moving_averages[-1]]*(window_size-1-int(window_size/2))
+	
+	return np.array(list_before+moving_averages+list_after)
