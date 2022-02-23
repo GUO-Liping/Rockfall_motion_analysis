@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	sample_rate = 500
 	
 	# 此处的时间序列默认为从零开始
-	time_updated, disp_updated = func_update_disp(time_R7_impact2nd,disp_R7_impact2nd, sample_rate)  # 更新采样频率至同一水平
+	time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)  # 更新采样频率至同一水平
 	total_time = np.max(time_updated)
 	#time_updated, disp_updated = time_750kJ_SEL1st, disp_750kJ_SEL1st  # 更新采样频率至同一水平
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
 	n_fit = int(0.05*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
 	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =3  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =32  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
@@ -162,6 +162,13 @@ if __name__ == '__main__':
 
 ###########################################################################################################################
 	# 绘制数值微分与小波微分对比图
+	smoothWT_ori_SNR = func_SNR(Amp0_analy_utn*analy_utn_conv0)
+	smoothWT_1st_SNR = func_SNR(Amp1_analy_utn*analy_utn_conv1)
+	smoothWT_2nd_SNR = func_SNR(Amp2_analy_utn*analy_utn_conv2)
+	print('smoothWT_ori_SNR=', smoothWT_ori_SNR)
+	print('smoothWT_1st_SNR=', smoothWT_1st_SNR)
+	print('smoothWT_2nd_SNR=', smoothWT_2nd_SNR)
+
 	plt.subplot(2,3,1)
 	plt.plot(analy_t, analy_utn[n_add:-n_add],label = 'analy_utn')
 	plt.plot(analy_t, Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
@@ -253,10 +260,10 @@ if __name__ == '__main__':
 	cccc2 = Amp2_test_utn*test_utn_conv2
 
 
-	plt.plot(analy_t,analy_ut)
-	plt.plot(analy_t,analy_ut)
-	plt.plot(analy_t,analy_vt)
-	plt.plot(analy_t,analy_at)
+	#plt.plot(analy_t,analy_ut)
+	#plt.plot(analy_t,analy_ut)
+	#plt.plot(analy_t,analy_vt)
+	#plt.plot(analy_t,analy_at)
 
 	np.savetxt('analy_t.txt', analy_t)
 	np.savetxt('analy_ut.txt', analy_ut)

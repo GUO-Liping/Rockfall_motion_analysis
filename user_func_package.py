@@ -427,8 +427,8 @@ def func_BinarySearch_ED(source,convol, para_threshold):
 	dAmp = (up-low)/num
 	AmpArray = np.arange(low, up+0.5*dAmp, dAmp)
 	dist = np.zeros(len(AmpArray))+1e10
-	plt.plot(source)
-	plt.show()
+	#plt.plot(source)
+	#plt.show()
 	ref_index = np.argmax(source)  # int(len(source)/5)
 
 	for i in range(num+1):
