@@ -33,7 +33,7 @@ if __name__ == '__main__':
 	total_time = np.max(time_updated)
 
 	# scale = fc/f_pseudo*sample_rate，其中f_pseudo为傅里叶变换得到的伪频率
-	scale =8  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =16  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
@@ -262,18 +262,17 @@ if __name__ == '__main__':
 	#plt.plot(analy_t,analy_vt)
 	#plt.plot(analy_t,analy_at)
 
-	np.savetxt('analy_t.txt', analy_t)
-	np.savetxt('analy_ut.txt', analy_ut)
-	np.savetxt('analy_vt.txt', analy_vt)
-	np.savetxt('analy_at.txt', analy_at)
+	np.savetxt('analy_t.txt', analy_t[n_add:-n_add])
+	np.savetxt('analy_ut.txt', analy_ut[n_add:-n_add])
+	np.savetxt('analy_vt.txt', analy_vt[n_add:-n_add])
+	np.savetxt('analy_at.txt', analy_at[n_add:-n_add])
 	#np.savetxt('analy_utn.txt', analy_utn[n_add:-n_add])	
 	#np.savetxt('analy_vtn.txt', analy_vtn[n_add:-n_add])	
 	#np.savetxt('analy_atn.txt', analy_atn[n_add:-n_add])	
 
-	np.savetxt('test_time.txt', test_time)
-	np.savetxt('Amp0Myconv0.txt', Amp0_analy_utn*analy_utn_conv0)
-	np.savetxt('Amp1Myconv1.txt', Amp1_analy_utn*analy_utn_conv1)
-	np.savetxt('Amp2Myconv2.txt', Amp2_analy_utn*analy_utn_conv2)
+	np.savetxt('Amp0_analy_utn.txt', Amp0_analy_utn*analy_utn_conv0)
+	np.savetxt('Amp1_analy_utn.txt', Amp1_analy_utn*analy_utn_conv1)
+	np.savetxt('Amp2_analy_utn.txt', Amp2_analy_utn*analy_utn_conv2)
 
 	'''
 	# 绘制卷积运算、pywt计算结果
