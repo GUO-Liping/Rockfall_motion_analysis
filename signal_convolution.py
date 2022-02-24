@@ -31,16 +31,17 @@ if __name__ == '__main__':
 	# 此处的时间序列默认为从零开始
 	time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)  # 更新采样频率至同一水平
 	total_time = np.max(time_updated)
-	#time_updated, disp_updated = time_750kJ_SEL1st, disp_750kJ_SEL1st  # 更新采样频率至同一水平
+
+	# scale = fc/f_pseudo*sample_rate，其中f_pseudo为傅里叶变换得到的伪频率
+	scale =8  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
 	plt.plot(time_updated, disp_updated,'*')
 
-	n_fit = int(0.05*500)	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-	n_add = int(0.1*500)	# 第二个常数，表示在信号首尾端需要添加的数据点数量
-	scale =32  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
-	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
+	n_fit = int(0.01*len(disp_updated))	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n_add = int(0.05*len(disp_updated))	# 第二个常数，表示在信号首尾端需要添加的数据点数量
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
@@ -54,10 +55,11 @@ if __name__ == '__main__':
 	#plt.plot(time_R7_impact1st,disp_R7_impact1st,'*')
 	#plt.plot(time_updated, disp_updated,'-')
 	#plt.show()
-	analy_t = time_updated[n_add:-n_add]
-	analy_ut = func_analytical_signal_impact(analy_t)[0]
-	analy_vt = func_analytical_signal_impact(analy_t)[1]
-	analy_at = func_analytical_signal_impact(analy_t)[2]
+	t_initial = np.arange(0,4.5,step=0.002)
+	analy_t = func_analytical_signal_impact(t_initial)[-1]
+	analy_ut = func_analytical_signal_impact(t_initial)[0]
+	analy_vt = func_analytical_signal_impact(t_initial)[1]
+	analy_at = func_analytical_signal_impact(t_initial)[2]
 
 	white_noise = np.array([random.gauss(0.0, 1.0) for i in range(len(analy_ut))])  #是为了保证多次调用函数时，这一组选定的伪随机数不再改变
 	add_SNR = func_get_SNR(analy_ut, white_noise, disp_updated)
@@ -78,49 +80,37 @@ if __name__ == '__main__':
 	'''
 
 	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)	
-	plt.plot(analy_t, analy_utn,'*')
-
-	analy_t, analy_utn = func_user_pad(analy_t, analy_utn, n_fit, 'before', n_add)
-	analy_t, analy_utn = func_user_pad(analy_t, analy_utn, n_fit, 'after',  n_add)
-	
-	plt.plot(analy_t, analy_utn,'-')
-	plt.show()
-
 	analy_vtn = func_diff_2point(analy_t, analy_utn)
 	analy_atn = func_diff_2point(analy_t, analy_vtn)
+	plt.plot(analy_t, analy_utn,'-')
+	plt.show()
 
 	#plt.plot(time_updated,analy_ut-1.75, label="analy_ut")
 	#plt.plot(time_updated,analy_uta-1.75, label="analy_uta")
 	#plt.plot(time_updated, disp_updated, label="tracking Data")
-
+	fc_gauss0 = 1/(2*np.pi)*np.sqrt(2/np.pi)
+	fc_gauss1 = 1/(1*np.pi)*np.sqrt(2/np.pi)
+	fc_gauss2 = 4/(3*np.pi)*np.sqrt(2/np.pi)
+	fc_gauss3 = 8/(5*np.pi)*np.sqrt(2/np.pi)
 ###########################################################################################################################
 # 该部分对解析信号进行小波卷积与幅值因子求解，由于解析解记为真实信号，故直接计算真实解与小波卷积、有限差分结果之间的欧氏距离
-	analy_t = analy_t[n_add:-n_add]
-	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale)[0][n_add:-n_add]
-	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale)[1][n_add:-n_add]
-	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
+	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale*fc_gauss1/fc_gauss0)[1][n_add:-n_add]
+	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale*fc_gauss2/fc_gauss0)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	analy_target0 = analy_ut
-	analy_compare0 = analy_utn_conv0
-	Amp0_analy_utn, ED0_analy_utn, Amp0_analy = func_BinarySearch_ED(analy_target0, analy_compare0, 1e-10)
-
-	analy_target1 = analy_vt
-	analy_compare1 = analy_utn_conv1
-	Amp1_analy_utn, ED1_analy_utn, Amp1_analy = func_BinarySearch_ED(analy_target1, analy_compare1, 1e-10)
-
-	analy_target2 = analy_at
-	analy_compare2 = analy_utn_conv2
-	Amp2_analy_utn, ED2_analy_utn, Amp2_analy = func_BinarySearch_ED(analy_target2, analy_compare2, 1e-10)
+	Amp0_analy_utn, ED0_analy_utn, Amp0_analy = func_BinarySearch_ED(analy_ut[n_add:-n_add], analy_utn_conv0, 1e-10)
+	Amp1_analy_utn, ED1_analy_utn, Amp1_analy = func_BinarySearch_ED(analy_vt[n_add:-n_add], analy_utn_conv1, 1e-10)
+	Amp2_analy_utn, ED2_analy_utn, Amp2_analy = func_BinarySearch_ED(analy_at[n_add:-n_add], analy_utn_conv2, 1e-10)
 ###########################################################################################################################
 
 ###########################################################################################################################
 	# 处理试验捕捉的含噪信号
 	# 对含噪信号进行高斯小波卷积
 	test_time = time_updated[n_add:-n_add]
-	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale)[0][n_add:-n_add]
-	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale)[1][n_add:-n_add]
-	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
-	test_utn_conv3 = func_conv_gauss_wave(test_utn, scale)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+	test_utn_conv0 = func_conv_gauss_wave(test_utn, scale*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
+	test_utn_conv1 = func_conv_gauss_wave(test_utn, scale*fc_gauss1/fc_gauss0)[1][n_add:-n_add]
+	test_utn_conv2 = func_conv_gauss_wave(test_utn, scale*fc_gauss2/fc_gauss0)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+	test_utn_conv3 = func_conv_gauss_wave(test_utn, scale*fc_gauss3/fc_gauss0)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
 	# 实际信号并无真实解，需要对含噪信号高斯小波卷积结果反向积分，通过积分-微分之间的自洽性验证结果的准确性，积分时需要输入初始条件
 	integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
@@ -169,22 +159,29 @@ if __name__ == '__main__':
 	print('smoothWT_1st_SNR=', smoothWT_1st_SNR)
 	print('smoothWT_2nd_SNR=', smoothWT_2nd_SNR)
 
+	smoothWT_ori_ED = np.linalg.norm(Amp0_analy_utn*analy_utn_conv0 - analy_ut[n_add:-n_add])
+	smoothWT_1st_ED = np.linalg.norm(Amp1_analy_utn*analy_utn_conv1 - analy_vt[n_add:-n_add])
+	smoothWT_2nd_ED = np.linalg.norm(Amp2_analy_utn*analy_utn_conv2 - analy_at[n_add:-n_add])
+	print('smoothWT_ori_ED=', smoothWT_ori_ED)
+	print('smoothWT_1st_ED=', smoothWT_1st_ED)
+	print('smoothWT_2nd_ED=', smoothWT_2nd_ED)
+
 	plt.subplot(2,3,1)
-	plt.plot(analy_t, analy_utn[n_add:-n_add],label = 'analy_utn')
-	plt.plot(analy_t, Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
-	plt.plot(analy_t, analy_ut,label = 'analy_ut')
+	plt.plot(analy_t[n_add:-n_add], analy_utn[n_add:-n_add],label = 'analy_utn')
+	plt.plot(analy_t[n_add:-n_add], Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
+	plt.plot(analy_t[n_add:-n_add], analy_ut[n_add:-n_add],label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,2)
-	plt.plot(analy_t, analy_vtn[n_add:-n_add],label = 'analy_vtn')
-	plt.plot(analy_t, Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
-	plt.plot(analy_t, analy_vt,label = 'analy_vt')
+	plt.plot(analy_t[n_add:-n_add], analy_vtn[n_add:-n_add],label = 'analy_vtn')
+	plt.plot(analy_t[n_add:-n_add], Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
+	plt.plot(analy_t[n_add:-n_add], analy_vt[n_add:-n_add],label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,3)
-	plt.plot(analy_t, analy_atn[n_add:-n_add],label = 'analy_atn')
-	plt.plot(analy_t, Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
-	plt.plot(analy_t, analy_at,label = 'analy_at')
+	plt.plot(analy_t[n_add:-n_add], analy_atn[n_add:-n_add],label = 'analy_atn')
+	plt.plot(analy_t[n_add:-n_add], Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
+	plt.plot(analy_t[n_add:-n_add], analy_at[n_add:-n_add],label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,4)
@@ -234,25 +231,25 @@ if __name__ == '__main__':
 	#print('SNR of the handled signal is', func_SNR(Amp*myconv0))
 ########################################################################################
 #### 打印及导出数据
-	print('SNR of noise-added analytical displacement = ', func_SNR(analy_utn[n_add:-n_add]))
-	print('SNR of noise-added analytical velocity = ', func_SNR(analy_vtn[n_add:-n_add]))
-	print('SNR of noise-added analytical acceleration = ', func_SNR(analy_atn[n_add:-n_add]))
-
-	print('ED between analy disp and noise-added analy disp = ', np.linalg.norm(analy_utn[n_add:-n_add]-analy_ut))
-	print('ED between analy velo and noise-added analy velo = ', np.linalg.norm(analy_vtn[n_add:-n_add]-analy_vt))
-	print('ED between analy acce and noise-added analy acce = ', np.linalg.norm(analy_atn[n_add:-n_add]-analy_at))
-
-	print('SNR of tracked displacement = ', func_SNR(test_utn[n_add:-n_add]))
-	print('SNR of finite-diff velocity = ', func_SNR(test_vtn[n_add:-n_add]))
-	print('SNR of finite-diff acceleration = ', func_SNR(test_atn[n_add:-n_add]))
-
-	print('SNR of Gaussian displacement = ', func_SNR(Amp0_test_utn*test_utn_conv0))
-	print('SNR of Gaussian velocity = ', func_SNR(Amp1_test_utn*test_utn_conv1))
-	print('SNR of Gaussian acceleration = ', func_SNR(Amp2_test_utn*test_utn_conv2))
-
-	print('ED between test disp and gauss disp = ', ED0_test_utn)
-	print('ED between test velo and gauss velo = ', ED1_test_utn)
-	print('ED between test acce and gauss acce = ', ED2_test_utn)
+	#print('SNR of noise-added analytical displacement = ', func_SNR(analy_utn[n_add:-n_add]))
+	#print('SNR of noise-added analytical velocity = ', func_SNR(analy_vtn[n_add:-n_add]))
+	#print('SNR of noise-added analytical acceleration = ', func_SNR(analy_atn[n_add:-n_add]))
+#
+	#print('ED between analy disp and noise-added analy disp = ', np.linalg.norm(analy_utn[n_add:-n_add]-analy_ut[n_add:-n_add]))
+	#print('ED between analy velo and noise-added analy velo = ', np.linalg.norm(analy_vtn[n_add:-n_add]-analy_vt[n_add:-n_add]))
+	#print('ED between analy acce and noise-added analy acce = ', np.linalg.norm(analy_atn[n_add:-n_add]-analy_at[n_add:-n_add]))
+#
+	#print('SNR of tracked displacement = ', func_SNR(test_utn[n_add:-n_add]))
+	#print('SNR of finite-diff velocity = ', func_SNR(test_vtn[n_add:-n_add]))
+	#print('SNR of finite-diff acceleration = ', func_SNR(test_atn[n_add:-n_add]))
+#
+	#print('SNR of Gaussian displacement = ', func_SNR(Amp0_test_utn*test_utn_conv0))
+	#print('SNR of Gaussian velocity = ', func_SNR(Amp1_test_utn*test_utn_conv1))
+	#print('SNR of Gaussian acceleration = ', func_SNR(Amp2_test_utn*test_utn_conv2))
+#
+	#print('ED between test disp and gauss disp = ', ED0_test_utn)
+	#print('ED between test velo and gauss velo = ', ED1_test_utn)
+	#print('ED between test acce and gauss acce = ', ED2_test_utn)
 
 
 	cccc0 = Amp0_test_utn*test_utn_conv0
@@ -286,4 +283,3 @@ if __name__ == '__main__':
 	'''
 
 	plt.show()
-	

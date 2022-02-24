@@ -138,7 +138,7 @@ def func_analytical_signal_impact(time_updated):
 	plt.plot(t_array, at_array)
 	plt.show()
 	'''
-	return ut_array, vt_array, at_array
+	return ut_array, vt_array, at_array, t_array
 
 
 # 该函数用于计算原始数据data的信噪比
@@ -215,9 +215,9 @@ def func_conv_gauss_wave(data_array, scale):
 	upper = 5 * scale  # 这里取正负是因为本程序中的高斯函数对称轴为x=0
 	
 	s = scale  # s是scale的缩写，方便后续公式的简洁
-	timestep = (upper-lower)/(s*10)
+	timestep = (upper-lower)/(s*5)  # 原来为s*10
 	t = np.arange(lower,upper+0.5*timestep,timestep)
-	
+
 	C0 = 1/np.sqrt(np.pi)  # 能量归一化系数
 	theta_t = C0 * np.exp(-t**2)  # 高斯函数-实数域能量归一化
 	theta_st = C0 * np.exp(-t**2/(s**2)) / np.sqrt(s)  # 高斯函数尺寸缩放
@@ -234,19 +234,19 @@ def func_conv_gauss_wave(data_array, scale):
 	psi_3rd = C3 * np.exp(-t**2) * (-8*t**3 + 12*t)  # 高斯函数三阶导数-实数域能量归一化
 	psi_3rd_st = C3 * np.exp(-t**2/s**2) * (-8*t**3/s**3 + 12*t/s) / (np.sqrt(s))  # 三阶高斯小波
 
-	#plt.subplot(1,4,1)
-	#plt.plot(t,theta_st,label = 'gauss')
-	#plt.legend(loc="best",fontsize=8)
-	#plt.subplot(1,4,2)
-	#plt.plot(t,psi_1st_st,label = 'gauss1')
-	#plt.legend(loc="best",fontsize=8)
-	#plt.subplot(1,4,3)
-	#plt.plot(t,psi_2nd_st,label = 'gauss2')
-	#plt.legend(loc="best",fontsize=8)
-	#plt.subplot(1,4,4)
-	#plt.plot(t,psi_3rd_st,label = 'gauss3')
-	#plt.legend(loc="best",fontsize=8)
-	#plt.show()
+	plt.subplot(1,4,1)
+	plt.plot(t,theta_st,label = 'gauss')
+	plt.legend(loc="best",fontsize=8)
+	plt.subplot(1,4,2)
+	plt.plot(t,psi_1st_st,label = 'gauss1')
+	plt.legend(loc="best",fontsize=8)
+	plt.subplot(1,4,3)
+	plt.plot(t,psi_2nd_st,label = 'gauss2')
+	plt.legend(loc="best",fontsize=8)
+	plt.subplot(1,4,4)
+	plt.plot(t,psi_3rd_st,label = 'gauss3')
+	plt.legend(loc="best",fontsize=8)
+	plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
