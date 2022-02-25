@@ -37,15 +37,15 @@ diff_ori_disp = analy_utn
 diff_1st_disp = func_diff_2point(analy_t, analy_utn)
 diff_2nd_disp = func_diff_2point(analy_t, diff_1st_disp)
 
-# 含躁信号微分结果进行光滑（滑动平均法）
-smoothMV_ori_disp = func_move_average(diff_ori_disp, 128, mode='nearest')
-smoothMV_1st_disp = func_move_average(diff_1st_disp, 128, mode='nearest')
-smoothMV_2nd_disp = func_move_average(diff_2nd_disp, 128, mode='nearest')
+# 含躁信号微分结果进行光滑（Moving Average滑动平均法）
+smoothMV_ori_disp = func_move_average(diff_ori_disp, 256, mode='nearest')
+smoothMV_1st_disp = func_move_average(diff_1st_disp, 256, mode='nearest')
+smoothMV_2nd_disp = func_move_average(diff_2nd_disp, 256, mode='nearest')
 
 # 含躁信号微分结果进行光滑（Savitzky-Golay法）
-smoothSV_ori_disp = savgol_filter(diff_ori_disp, 128, 2, mode='nearest')
-smoothSV_1st_disp = savgol_filter(diff_1st_disp, 128, 2, mode='nearest')
-smoothSV_2nd_disp = savgol_filter(diff_2nd_disp, 128, 2, mode='nearest')
+smoothSV_ori_disp = savgol_filter(diff_ori_disp, 256, 2, mode='mirror')
+smoothSV_1st_disp = savgol_filter(diff_1st_disp, 256, 2, mode='mirror')
+smoothSV_2nd_disp = savgol_filter(diff_2nd_disp, 256, 2, mode='mirror')
 
 smoothMV_ori_SNR = func_SNR(smoothMV_ori_disp)
 smoothMV_1st_SNR = func_SNR(smoothMV_1st_disp)
@@ -75,27 +75,50 @@ print('smoothSV_ori_ED=', smoothSV_ori_ED)
 print('smoothSV_1st_ED=', smoothSV_1st_ED)
 print('smoothSV_2nd_ED=', smoothSV_2nd_ED)
 
+smoothMV_ori_Err = np.amax(smoothMV_ori_disp - analy_ut)/np.amax(analy_ut)*100
+smoothMV_1st_Err = np.amax(smoothMV_1st_disp - analy_vt)/np.amax(analy_vt)*100
+smoothMV_2nd_Err = np.amax(smoothMV_2nd_disp - analy_at)/np.amax(analy_at)*100
+print('smoothMV_ori_Err=', smoothMV_ori_Err)
+print('smoothMV_1st_Err=', smoothMV_1st_Err)
+print('smoothMV_2nd_Err=', smoothMV_2nd_Err)
+
+smoothSV_ori_Err = np.amax(smoothSV_ori_disp - analy_ut)/np.amax(analy_ut)*100
+smoothSV_1st_Err = np.amax(smoothSV_1st_disp - analy_vt)/np.amax(analy_vt)*100
+smoothSV_2nd_Err = np.amax(smoothSV_2nd_disp - analy_at)/np.amax(analy_at)*100
+print('smoothSV_ori_Err=', smoothSV_ori_Err)
+print('smoothSV_1st_Err=', smoothSV_1st_Err)
+print('smoothSV_2nd_Err=', smoothSV_2nd_Err)
+
 # 绘制数值微分与小波微分对比图
 plt.figure(figsize=(18,5), dpi=100)
 plt.subplot(1,3,1)
 plt.plot(analy_t, analy_ut,label = 'analy_ut')
 plt.plot(analy_t, diff_ori_disp,label = 'diff_ori_disp')
 plt.plot(analy_t, smoothMV_ori_disp,label = 'smoothMV_ori_disp')
-#plt.plot(analy_t, smoothSV_ori_disp,label = 'smoothSV_ori_disp')
+plt.plot(analy_t, smoothSV_ori_disp,label = 'smoothSV_ori_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.subplot(1,3,2)
 plt.plot(analy_t, analy_vt,label = 'analy_vt')
 plt.plot(analy_t, diff_1st_disp,label = 'diff_1st_disp')
 plt.plot(analy_t, smoothMV_1st_disp,label = 'smoothMV_1st_disp')
-#plt.plot(analy_t, smoothSV_1st_disp,label = 'smoothSV_1st_disp')
+plt.plot(analy_t, smoothSV_1st_disp,label = 'smoothSV_1st_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.subplot(1,3,3)
 plt.plot(analy_t, analy_at,label = 'analy_at')
 plt.plot(analy_t, diff_2nd_disp,label = 'diff_2nd_disp')
 plt.plot(analy_t, smoothMV_2nd_disp,label = 'smoothMV_2nd_disp')
-#plt.plot(analy_t, smoothSV_2nd_disp,label = 'smoothSV_2nd_disp')
+plt.plot(analy_t, smoothSV_2nd_disp,label = 'smoothSV_2nd_disp')
 plt.legend(loc="best",fontsize=8)
 
 plt.show()
+
+'''
+np.savetxt('smoothMV_ori_disp.txt', smoothMV_ori_disp)
+np.savetxt('smoothMV_1st_disp.txt', smoothMV_1st_disp)
+np.savetxt('smoothMV_2nd_disp.txt', smoothMV_2nd_disp)
+np.savetxt('smoothSV_ori_disp.txt', smoothSV_ori_disp)
+np.savetxt('smoothSV_1st_disp.txt', smoothSV_1st_disp)
+np.savetxt('smoothSV_2nd_disp.txt', smoothSV_2nd_disp)
+'''

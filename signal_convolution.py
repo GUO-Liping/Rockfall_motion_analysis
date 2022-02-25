@@ -33,7 +33,7 @@ if __name__ == '__main__':
 	total_time = np.max(time_updated)
 
 	# scale = fc/f_pseudo*sample_rate，其中f_pseudo为傅里叶变换得到的伪频率
-	scale =16  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =128  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 	#plt.plot(time_R7_impact1st,disp_R7_impact1st,'*')
 	#plt.plot(time_updated, disp_updated,'-')
 	#plt.show()
-	t_initial = np.arange(0,4.5,step=0.002)
+	t_initial = np.arange(0,5.0,step=0.002)
 	analy_t = func_analytical_signal_impact(t_initial)[-1]
 	analy_ut = func_analytical_signal_impact(t_initial)[0]
 	analy_vt = func_analytical_signal_impact(t_initial)[1]
@@ -82,6 +82,8 @@ if __name__ == '__main__':
 	analy_utn = func_add_noise(analy_ut, white_noise, add_SNR)	
 	analy_vtn = func_diff_2point(analy_t, analy_utn)
 	analy_atn = func_diff_2point(analy_t, analy_vtn)
+	n_utn_pad = int(0.5/0.002)
+	analy_utn_pad = np.concatenate((np.zeros(n_utn_pad), analy_utn),axis=0)
 	plt.plot(analy_t, analy_utn,'-')
 	plt.show()
 
@@ -94,13 +96,13 @@ if __name__ == '__main__':
 	fc_gauss3 = 8/(5*np.pi)*np.sqrt(2/np.pi)
 ###########################################################################################################################
 # 该部分对解析信号进行小波卷积与幅值因子求解，由于解析解记为真实信号，故直接计算真实解与小波卷积、有限差分结果之间的欧氏距离
-	analy_utn_conv0 = func_conv_gauss_wave(analy_utn, scale*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
-	analy_utn_conv1 = func_conv_gauss_wave(analy_utn, scale*fc_gauss1/fc_gauss0)[1][n_add:-n_add]
-	analy_utn_conv2 = func_conv_gauss_wave(analy_utn, scale*fc_gauss2/fc_gauss0)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+	analy_utn_conv0 = func_conv_gauss_wave(analy_utn_pad, scale*fc_gauss0/fc_gauss0)[0][n_utn_pad:-n_utn_pad]
+	analy_utn_conv1 = func_conv_gauss_wave(analy_utn_pad, scale*fc_gauss1/fc_gauss0)[1][n_utn_pad:-n_utn_pad]
+	analy_utn_conv2 = func_conv_gauss_wave(analy_utn_pad, scale*fc_gauss2/fc_gauss0)[2][n_utn_pad:-n_utn_pad]  # 手动生成高斯小波函数族,并与信号进行卷积
 
-	Amp0_analy_utn, ED0_analy_utn, Amp0_analy = func_BinarySearch_ED(analy_ut[n_add:-n_add], analy_utn_conv0, 1e-10)
-	Amp1_analy_utn, ED1_analy_utn, Amp1_analy = func_BinarySearch_ED(analy_vt[n_add:-n_add], analy_utn_conv1, 1e-10)
-	Amp2_analy_utn, ED2_analy_utn, Amp2_analy = func_BinarySearch_ED(analy_at[n_add:-n_add], analy_utn_conv2, 1e-10)
+	Amp0_analy_utn, ED0_analy_utn, Amp0_analy = func_BinarySearch_ED(analy_ut[:-n_utn_pad], analy_utn_conv0, 1e-10)
+	Amp1_analy_utn, ED1_analy_utn, Amp1_analy = func_BinarySearch_ED(analy_vt[:-n_utn_pad], analy_utn_conv1, 1e-10)
+	Amp2_analy_utn, ED2_analy_utn, Amp2_analy = func_BinarySearch_ED(analy_at[:-n_utn_pad], analy_utn_conv2, 1e-10)
 ###########################################################################################################################
 
 ###########################################################################################################################
@@ -159,29 +161,36 @@ if __name__ == '__main__':
 	print('smoothWT_1st_SNR=', smoothWT_1st_SNR)
 	print('smoothWT_2nd_SNR=', smoothWT_2nd_SNR)
 
-	smoothWT_ori_ED = np.linalg.norm(Amp0_analy_utn*analy_utn_conv0 - analy_ut[n_add:-n_add])
-	smoothWT_1st_ED = np.linalg.norm(Amp1_analy_utn*analy_utn_conv1 - analy_vt[n_add:-n_add])
-	smoothWT_2nd_ED = np.linalg.norm(Amp2_analy_utn*analy_utn_conv2 - analy_at[n_add:-n_add])
+	smoothWT_ori_ED = np.linalg.norm(Amp0_analy_utn*analy_utn_conv0 - analy_ut[:-n_utn_pad])
+	smoothWT_1st_ED = np.linalg.norm(Amp1_analy_utn*analy_utn_conv1 - analy_vt[:-n_utn_pad])
+	smoothWT_2nd_ED = np.linalg.norm(Amp2_analy_utn*analy_utn_conv2 - analy_at[:-n_utn_pad])
 	print('smoothWT_ori_ED=', smoothWT_ori_ED)
 	print('smoothWT_1st_ED=', smoothWT_1st_ED)
 	print('smoothWT_2nd_ED=', smoothWT_2nd_ED)
 
+	smoothWT_ori_Err = np.amax(Amp0_analy_utn*analy_utn_conv0 - analy_ut[:-n_utn_pad])/np.amax(analy_ut[:-n_utn_pad])*100
+	smoothWT_1st_Err = np.amax(Amp1_analy_utn*analy_utn_conv1 - analy_vt[:-n_utn_pad])/np.amax(analy_vt[:-n_utn_pad])*100
+	smoothWT_2nd_Err = np.amax(Amp2_analy_utn*analy_utn_conv2 - analy_at[:-n_utn_pad])/np.amax(analy_at[:-n_utn_pad])*100
+	print('smoothWT_ori_Err=', smoothWT_ori_Err)
+	print('smoothWT_1st_Err=', smoothWT_1st_Err)
+	print('smoothWT_2nd_Err=', smoothWT_2nd_Err)
+
 	plt.subplot(2,3,1)
-	plt.plot(analy_t[n_add:-n_add], analy_utn[n_add:-n_add],label = 'analy_utn')
-	plt.plot(analy_t[n_add:-n_add], Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
-	plt.plot(analy_t[n_add:-n_add], analy_ut[n_add:-n_add],label = 'analy_ut')
+	plt.plot(analy_t[:-n_utn_pad], analy_utn[:-n_utn_pad],label = 'analy_utn')
+	plt.plot(analy_t[:-n_utn_pad], Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
+	plt.plot(analy_t[:-n_utn_pad], analy_ut[:-n_utn_pad],label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,2)
-	plt.plot(analy_t[n_add:-n_add], analy_vtn[n_add:-n_add],label = 'analy_vtn')
-	plt.plot(analy_t[n_add:-n_add], Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
-	plt.plot(analy_t[n_add:-n_add], analy_vt[n_add:-n_add],label = 'analy_vt')
+	plt.plot(analy_t[:-n_utn_pad], analy_vtn[:-n_utn_pad],label = 'analy_vtn')
+	plt.plot(analy_t[:-n_utn_pad], Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
+	plt.plot(analy_t[:-n_utn_pad], analy_vt[:-n_utn_pad],label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,3)
-	plt.plot(analy_t[n_add:-n_add], analy_atn[n_add:-n_add],label = 'analy_atn')
-	plt.plot(analy_t[n_add:-n_add], Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
-	plt.plot(analy_t[n_add:-n_add], analy_at[n_add:-n_add],label = 'analy_at')
+	plt.plot(analy_t[:-n_utn_pad], analy_atn[:-n_utn_pad],label = 'analy_atn')
+	plt.plot(analy_t[:-n_utn_pad], Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
+	plt.plot(analy_t[:-n_utn_pad], analy_at[:-n_utn_pad],label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
 
 	plt.subplot(2,3,4)
@@ -251,24 +260,19 @@ if __name__ == '__main__':
 	#print('ED between test velo and gauss velo = ', ED1_test_utn)
 	#print('ED between test acce and gauss acce = ', ED2_test_utn)
 
-
-	cccc0 = Amp0_test_utn*test_utn_conv0
-	cccc1 = Amp1_test_utn*test_utn_conv1
-	cccc2 = Amp2_test_utn*test_utn_conv2
-
-
 	#plt.plot(analy_t,analy_ut)
 	#plt.plot(analy_t,analy_ut)
 	#plt.plot(analy_t,analy_vt)
 	#plt.plot(analy_t,analy_at)
 
-	np.savetxt('analy_t.txt', analy_t[n_add:-n_add])
-	np.savetxt('analy_ut.txt', analy_ut[n_add:-n_add])
-	np.savetxt('analy_vt.txt', analy_vt[n_add:-n_add])
-	np.savetxt('analy_at.txt', analy_at[n_add:-n_add])
-	#np.savetxt('analy_utn.txt', analy_utn[n_add:-n_add])	
-	#np.savetxt('analy_vtn.txt', analy_vtn[n_add:-n_add])	
-	#np.savetxt('analy_atn.txt', analy_atn[n_add:-n_add])	
+	np.savetxt('analy_t.txt', analy_t[:-n_utn_pad])
+	np.savetxt('analy_ut.txt', analy_ut[:-n_utn_pad])
+	np.savetxt('analy_vt.txt', analy_vt[:-n_utn_pad])
+	np.savetxt('analy_at.txt', analy_at[:-n_utn_pad])
+
+	np.savetxt('analy_utn.txt', analy_utn[:-n_utn_pad])
+	np.savetxt('analy_vtn.txt', analy_vtn[:-n_utn_pad])
+	np.savetxt('analy_atn.txt', analy_atn[:-n_utn_pad])
 
 	np.savetxt('Amp0_analy_utn.txt', Amp0_analy_utn*analy_utn_conv0)
 	np.savetxt('Amp1_analy_utn.txt', Amp1_analy_utn*analy_utn_conv1)

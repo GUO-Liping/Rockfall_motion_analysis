@@ -91,7 +91,7 @@ def func_analytical_signal_free(time_updated):
 # 给出一个单自由度低阻尼体系在谐波脉冲作用下的动力学时程解析信号，参考《结构动力学》
 def func_analytical_signal_impact(time_updated):
 	t_total = time_updated[-1]
-	t_impact =t_total/10
+	t_impact =0.45
 	dt = time_updated[1]-time_updated[0]
 	t_I_array = np.arange(0, t_impact+dt/2, dt)
 	t_II_array = np.arange(0,t_total-t_impact+dt/2, dt)
@@ -234,19 +234,19 @@ def func_conv_gauss_wave(data_array, scale):
 	psi_3rd = C3 * np.exp(-t**2) * (-8*t**3 + 12*t)  # 高斯函数三阶导数-实数域能量归一化
 	psi_3rd_st = C3 * np.exp(-t**2/s**2) * (-8*t**3/s**3 + 12*t/s) / (np.sqrt(s))  # 三阶高斯小波
 
-	plt.subplot(1,4,1)
-	plt.plot(t,theta_st,label = 'gauss')
-	plt.legend(loc="best",fontsize=8)
-	plt.subplot(1,4,2)
-	plt.plot(t,psi_1st_st,label = 'gauss1')
-	plt.legend(loc="best",fontsize=8)
-	plt.subplot(1,4,3)
-	plt.plot(t,psi_2nd_st,label = 'gauss2')
-	plt.legend(loc="best",fontsize=8)
-	plt.subplot(1,4,4)
-	plt.plot(t,psi_3rd_st,label = 'gauss3')
-	plt.legend(loc="best",fontsize=8)
-	plt.show()
+	#plt.subplot(1,4,1)
+	#plt.plot(t,theta_st,label = 'gauss')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,4,2)
+	#plt.plot(t,psi_1st_st,label = 'gauss1')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,4,3)
+	#plt.plot(t,psi_2nd_st,label = 'gauss2')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.subplot(1,4,4)
+	#plt.plot(t,psi_3rd_st,label = 'gauss3')
+	#plt.legend(loc="best",fontsize=8)
+	#plt.show()
 
 	data_conv0 = np.convolve(data_array, theta_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
 	data_conv1 = np.convolve(data_array, psi_1st_st, 'same')  # 模仿python源码,卷积前后时间序列数量一致
