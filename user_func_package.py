@@ -89,19 +89,20 @@ def func_analytical_signal_free(time_updated):
 
 
 # 给出一个单自由度低阻尼体系在谐波脉冲作用下的动力学时程解析信号，参考《结构动力学》
-def func_analytical_signal_impact(time_updated):
-	t_total = time_updated[-1]
+def func_analytical_signal_impact(time_array):
+	t_total = 4.5
 	t_impact =0.45
-	dt = time_updated[1]-time_updated[0]
+	dt = time_array[1] - time_array[0]
 	t_I_array = np.arange(0, t_impact+dt/2, dt)
 	t_II_array = np.arange(0,t_total-t_impact+dt/2, dt)
 
-	u0 = 0
-	v0 = 0
+	u_0 = 0
+	v_0 = 0
+	p_0 = -10000
+
 	para_m = 250
 	para_c = 300
 	para_k = 18000
-	p_0 = -10000
 
 	omega = np.sqrt(para_k/para_m)
 	omega_bar = np.pi/t_impact
@@ -113,32 +114,39 @@ def func_analytical_signal_impact(time_updated):
 	G_2 = (p_0/para_k)*(1-beta**2)/((1-beta**2)**2+(2*xi*beta)**2)
 
 	t = t_I_array
-	ut_I = G_1*np.cos(omega_bar*t) + G_2*np.sin(omega_bar*t) + ((-G_1 + u0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
-	vt_I = -G_1*omega_bar*np.sin(omega_bar*t) + G_2*omega_bar*np.cos(omega_bar*t) - omega*xi*((-G_1 + u0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*(-G_1 + u0)*np.sin(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u0) + v0)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
-	at_I = -G_1*omega_bar**2*np.cos(omega_bar*t) - G_2*omega_bar**2*np.sin(omega_bar*t) - omega**2*xi**2*((G_1 - u0)*np.cos(omega_D*t) + (G_2*omega_bar + omega*xi*(G_1 - u0) - v0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) - 2*omega*xi*(omega_D*(G_1 - u0)*np.sin(omega_D*t) + (-G_2*omega_bar - omega*xi*(G_1 - u0) + v0)*np.cos(omega_D*t))*np.exp(-omega*t*xi) + omega_D*(omega_D*(G_1 - u0)*np.cos(omega_D*t) - (-G_2*omega_bar - omega*xi*(G_1 - u0) + v0)*np.sin(omega_D*t))*np.exp(-omega*t*xi)
+	ut_I = G_1*np.cos(omega_bar*t) + G_2*np.sin(omega_bar*t) + ((-G_1 + u_0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
+	vt_I = -G_1*omega_bar*np.sin(omega_bar*t) + G_2*omega_bar*np.cos(omega_bar*t) - omega*xi*((-G_1 + u_0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*(-G_1 + u_0)*np.sin(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
+	at_I = -G_1*omega_bar**2*np.cos(omega_bar*t) - G_2*omega_bar**2*np.sin(omega_bar*t) - omega**2*xi**2*((G_1 - u_0)*np.cos(omega_D*t) + (G_2*omega_bar + omega*xi*(G_1 - u_0) - v_0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) - 2*omega*xi*(omega_D*(G_1 - u_0)*np.sin(omega_D*t) + (-G_2*omega_bar - omega*xi*(G_1 - u_0) + v_0)*np.cos(omega_D*t))*np.exp(-omega*t*xi) + omega_D*(omega_D*(G_1 - u_0)*np.cos(omega_D*t) - (-G_2*omega_bar - omega*xi*(G_1 - u_0) + v_0)*np.sin(omega_D*t))*np.exp(-omega*t*xi)
+	jt_I = G_1*omega_bar**3*np.sin(omega_bar*t) - G_2*omega_bar**3*np.cos(omega_bar*t) - omega**3*xi**3*((-G_1 + u_0)*np.cos(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + 3*omega**2*xi**2*(-omega_D*(-G_1 + u_0)*np.sin(omega_D*t) + (-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.cos(omega_D*t))*np.exp(-omega*t*xi) - 3*omega*xi*(-omega_D**2*(-G_1 + u_0)*np.cos(omega_D*t) - omega_D*(-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.sin(omega_D*t))*np.exp(-omega*t*xi) + (omega_D**3*(-G_1 + u_0)*np.sin(omega_D*t) - omega_D**2*(-G_2*omega_bar + omega*xi*(-G_1 + u_0) + v_0)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
 	
-	u1 = ut_I[-1]
-	v1 = vt_I[-1]
+	u_1 = ut_I[-1]
+	v_1 = vt_I[-1]
+	a_1 = at_I[-1]
 
 	t = t_II_array
-	ut_II= (u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
-	vt_II= -omega*xi*(u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*u1*np.sin(omega_D*t) + (omega*u1*xi + v1)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
-	at_II= (omega**2*xi**2*(u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)/omega_D) + 2*omega*xi*(omega_D*u1*np.sin(omega_D*t) - (omega*u1*xi + v1)*np.cos(omega_D*t)) - omega_D*(omega_D*u1*np.cos(omega_D*t) + (omega*u1*xi + v1)*np.sin(omega_D*t)))*np.exp(-omega*t*xi)
+	ut_II= (u_1*np.cos(omega_D*t) + (omega*u_1*xi + v_1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi)
+	vt_II= -omega*xi*(u_1*np.cos(omega_D*t) + (omega*u_1*xi + v_1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + (-omega_D*u_1*np.sin(omega_D*t) + (omega*u_1*xi + v_1)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
+	at_II= (omega**2*xi**2*(u_1*np.cos(omega_D*t) + (omega*u_1*xi + v_1)*np.sin(omega_D*t)/omega_D) + 2*omega*xi*(omega_D*u_1*np.sin(omega_D*t) - (omega*u_1*xi + v_1)*np.cos(omega_D*t)) - omega_D*(omega_D*u_1*np.cos(omega_D*t) + (omega*u_1*xi + v_1)*np.sin(omega_D*t)))*np.exp(-omega*t*xi)
+	jt_II = -omega**3*xi**3*(u_1*np.cos(omega_D*t) + (omega*u_1*xi + v_1)*np.sin(omega_D*t)/omega_D)*np.exp(-omega*t*xi) + 3*omega**2*xi**2*(-omega_D*u_1*np.sin(omega_D*t) + (omega*u_1*xi + v_1)*np.cos(omega_D*t))*np.exp(-omega*t*xi) - 3*omega*xi*(-omega_D**2*u_1*np.cos(omega_D*t) - omega_D*(omega*u_1*xi + v_1)*np.sin(omega_D*t))*np.exp(-omega*t*xi) + (omega_D**3*u_1*np.sin(omega_D*t) - omega_D**2*(omega*u_1*xi + v_1)*np.cos(omega_D*t))*np.exp(-omega*t*xi)
 	
-	t_array = np.arange(0, t_total+dt/2, dt)
+	t_array = np.concatenate((t_I_array,t_II_array[1:]+t_impact),axis = 0)
 	ut_array = np.concatenate((ut_I,ut_II[1:]),axis = 0)
 	vt_array = np.concatenate((vt_I,vt_II[1:]),axis = 0)
 	at_array = np.concatenate((at_I,at_II[1:]),axis = 0)
-	'''
-	plt.subplot(1,3,1)
-	plt.plot(t_array, ut_array)
-	plt.subplot(1,3,2)
-	plt.plot(t_array, vt_array)
-	plt.subplot(1,3,3)
-	plt.plot(t_array, at_array)
-	plt.show()
-	'''
-	return ut_array, vt_array, at_array, t_array
+	jt_array = np.concatenate((jt_I,jt_II[1:]),axis = 0)
+	print('jt_I[-1]=',jt_II[-1],'jt_II[0]=',jt_II[0])
+	
+	#plt.subplot(1,4,1)
+	#plt.plot(t_array, ut_array)
+	#plt.subplot(1,4,2)
+	#plt.plot(t_array, vt_array)
+	#plt.subplot(1,4,3)
+	#plt.plot(t_array, at_array)
+	#plt.subplot(1,4,4)
+	#plt.plot(t_array, jt_array)
+	#plt.show()
+	
+	return ut_array, vt_array, at_array, jt_array, t_array
 
 
 # 该函数用于计算原始数据data的信噪比
