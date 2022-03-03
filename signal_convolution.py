@@ -41,10 +41,15 @@ if __name__ == '__main__':
 	test_atn125 = func_diff_2point(time_updated125, test_vtn125)
 	test_atn625 = func_diff_2point(time_updated625, test_vtn625)
 
-	SNR_500Hz = func_SNR(test_atn500)
-	SNR_250Hz = func_SNR(test_atn250)
-	SNR_125Hz = func_SNR(test_atn125)
-	SNR_625Hz = func_SNR(test_atn625)
+	test_jtn500 = func_diff_2point(time_updated500, test_atn500)
+	test_jtn250 = func_diff_2point(time_updated250, test_atn250)
+	test_jtn125 = func_diff_2point(time_updated125, test_atn125)
+	test_jtn625 = func_diff_2point(time_updated625, test_atn625)
+
+	SNR_500Hz = func_SNR(disp_updated500)
+	SNR_250Hz = func_SNR(test_jtn250)
+	SNR_125Hz = func_SNR(test_jtn125)
+	SNR_625Hz = func_SNR(test_jtn625)
 	print('SNR_500Hz=',SNR_500Hz, 'SNR_250Hz=',SNR_250Hz,'SNR_125Hz=',SNR_125Hz,'SNR_625Hz=',SNR_625Hz)
 
 
