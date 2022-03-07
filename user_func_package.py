@@ -89,10 +89,10 @@ def func_analytical_signal_free(time_updated):
 
 
 # 给出一个单自由度低阻尼体系在谐波脉冲作用下的动力学时程解析信号，参考《结构动力学》
-def func_analytical_signal_impact(time_array):
+def func_analytical_signal_impact(timestep):
 	t_total = 4.5
 	t_impact =0.45
-	dt = time_array[1] - time_array[0]
+	dt = timestep
 	t_I_array = np.arange(0, t_impact+dt/2, dt)
 	t_II_array = np.arange(0,t_total-t_impact+dt/2, dt)
 
