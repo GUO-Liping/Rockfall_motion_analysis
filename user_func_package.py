@@ -50,15 +50,15 @@ def func_freqs_divide(signal_data):
 		sum_energy = np.sum(power_signal[:i+1])
 		ratio_s = sum_energy/total_energy
 		print('ratio_s=',ratio_s)
-		if ratio_s*100>=0 and ratio_s*100<=60:
+		if ratio_s*100>=0 and ratio_s*100<=66:
 			i50 = i
 			print('i50=',i50)
 			print('ratio_s50=',ratio_s)
-		elif ratio_s*100>60 and ratio_s*100<=90:
+		elif ratio_s*100>66 and ratio_s*100<=90:
 			i90 = i
 			print('i90=',i90)
 			print('ratio_s90=',ratio_s)
-		elif ratio_s*100>90 and ratio_s*100<=99.3:
+		elif ratio_s*100>90 and ratio_s*100<=99.2:
 			i99 = i
 			print('i99=',i99)
 			print('ratio_s99=',ratio_s)
