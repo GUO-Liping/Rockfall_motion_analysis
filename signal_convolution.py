@@ -117,6 +117,10 @@ if __name__ == '__main__':
 	analy_vtn = func_diff_2point(analy_t, analy_utn)
 	analy_atn = func_diff_2point(analy_t, analy_vtn)
 	analy_jtn = func_diff_2point(analy_t, analy_atn)
+	
+	print('analy_utn_SNR=', func_SNR(analy_utn))
+	print('analy_vtn_SNR=', func_SNR(analy_vtn))
+	print('analy_atn_SNR=', func_SNR(analy_atn))
 
 	n_utn_pad = int(0.5/0.002)
 	analy_utn_pad = np.concatenate((np.zeros(n_utn_pad), analy_utn),axis=0)
