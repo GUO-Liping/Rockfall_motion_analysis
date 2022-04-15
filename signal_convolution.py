@@ -66,7 +66,7 @@ if __name__ == '__main__':
 	total_time = np.max(time_updated)
 
 	# scale = fc/f_pseudo*sample_rate，其中f_pseudo为傅里叶变换得到的伪频率
-	scale =4  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
+	scale =10  # 小波函数尺度参数 T=0.094s, fs=500Hz，伪中心频率0.12699对应的尺度参数为5.96853
 	#key_i = int((len(time_updated)-2*n_add-1)*0.5)  # 关键索引，便于求解小波变换幅值参数0.918for12,0.79 fors=6
 
 	# 边缘效应处理方法：pading，即向数据两段人工添加数据，小波变换后在除去这些数据
@@ -223,37 +223,46 @@ if __name__ == '__main__':
 	print('smoothWT_2nd_Err=', smoothWT_2nd_Err)
 	print('smoothWT_3rd_Err=', smoothWT_3rd_Err)
 
-	plt.subplot(2,3,1)
+	plt.subplot(3,3,1)
 	plt.plot(analy_t[:-n_utn_pad], analy_utn[:-n_utn_pad],label = 'analy_utn')
 	plt.plot(analy_t[:-n_utn_pad], Amp0_analy_utn*analy_utn_conv0,label = 'Amp*conv0')
 	plt.plot(analy_t[:-n_utn_pad], analy_ut[:-n_utn_pad],label = 'analy_ut')
 	plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(2,3,2)
+	plt.subplot(3,3,2)
 	plt.plot(analy_t[:-n_utn_pad], analy_vtn[:-n_utn_pad],label = 'analy_vtn')
 	plt.plot(analy_t[:-n_utn_pad], Amp1_analy_utn*analy_utn_conv1,label = 'Amp1*conv1')
 	plt.plot(analy_t[:-n_utn_pad], analy_vt[:-n_utn_pad],label = 'analy_vt')
 	plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(2,3,3)
+	plt.subplot(3,3,3)
 	plt.plot(analy_t[:-n_utn_pad], analy_atn[:-n_utn_pad],label = 'analy_atn')
 	plt.plot(analy_t[:-n_utn_pad], Amp2_analy_utn*analy_utn_conv2,label = 'Amp1*conv1')
 	plt.plot(analy_t[:-n_utn_pad], analy_at[:-n_utn_pad],label = 'analy_at')
 	plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(2,3,4)
-	plt.plot(test_time, test_utn[n_add:-n_add],label = 'test_utn')
-	plt.plot(test_time, Amp0_test_utn*test_utn_conv0,label = 'test_utn_conv0')
+	plt.subplot(3,3,4)
+	plt.plot(test_time, test_utn[n_add:-n_add])
 	plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(2,3,5)
-	plt.plot(test_time, test_vtn[n_add:-n_add],label = 'test_vtn')
-	plt.plot(test_time, Amp1_test_utn*test_utn_conv1,label = 'test_utn_conv1')
+	plt.subplot(3,3,5)
+	plt.plot(test_time, test_vtn[n_add:-n_add])
 	plt.legend(loc="best",fontsize=8)
 
-	plt.subplot(2,3,6)
-	plt.plot(test_time, test_atn[n_add:-n_add],label = 'test_atn')
-	plt.plot(test_time, Amp2_test_utn*test_utn_conv2,label = 'test_utn_conv2')
+	plt.subplot(3,3,6)
+	plt.plot(test_time, test_atn[n_add:-n_add])
+	plt.legend(loc="best",fontsize=8)
+
+	plt.subplot(3,3,7)
+	plt.plot(test_time, Amp0_test_utn*test_utn_conv0)
+	plt.legend(loc="best",fontsize=8)
+
+	plt.subplot(3,3,8)
+	plt.plot(test_time, Amp1_test_utn*test_utn_conv1)
+	plt.legend(loc="best",fontsize=8)
+
+	plt.subplot(3,3,9)
+	plt.plot(test_time, Amp2_test_utn*test_utn_conv2)
 	plt.legend(loc="best",fontsize=8)
 	plt.show()
 
