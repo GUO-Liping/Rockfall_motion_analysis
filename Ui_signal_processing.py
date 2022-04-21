@@ -11,6 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
 import matplotlib.pyplot as plt
+from table_userdefine import MyTable
 
 
 class Ui_MainWindow(object):
@@ -24,7 +25,7 @@ class Ui_MainWindow(object):
         self.splitter = QtWidgets.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
-        self.tableWidget = QtWidgets.QTableWidget(self.splitter)
+        self.tableWidget = MyTable(self.splitter)
         self.tableWidget.setMinimumSize(QtCore.QSize(200, 700))
         self.tableWidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.tableWidget.setBaseSize(QtCore.QSize(200, 2000))
@@ -103,6 +104,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.groupBox_up)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+
         self.pushButton_1 = QtWidgets.QPushButton(self.widget)
         self.pushButton_1.setMinimumSize(QtCore.QSize(300, 35))
         self.pushButton_1.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -112,6 +114,7 @@ class Ui_MainWindow(object):
         self.pushButton_1.setFont(font)
         self.pushButton_1.setObjectName("pushButton_1")
         self.horizontalLayout.addWidget(self.pushButton_1)
+
         self.pushButton_2 = QtWidgets.QPushButton(self.widget)
         self.pushButton_2.setMinimumSize(QtCore.QSize(300, 35))
         self.pushButton_2.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -121,6 +124,17 @@ class Ui_MainWindow(object):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.horizontalLayout.addWidget(self.pushButton_2)
+
+        self.pushButton_3 = QtWidgets.QPushButton(self.widget)
+        self.pushButton_3.setMinimumSize(QtCore.QSize(300, 35))
+        self.pushButton_3.setMaximumSize(QtCore.QSize(16777215, 30))
+        font = QtGui.QFont()
+        font.setFamily("黑体")
+        font.setPointSize(10)
+        self.pushButton_3.setFont(font)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.horizontalLayout.addWidget(self.pushButton_3)
+
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.groupBox_low = QtWidgets.QGroupBox(self.widget)
         self.groupBox_low.setMinimumSize(QtCore.QSize(900, 300))
@@ -202,8 +216,9 @@ class Ui_MainWindow(object):
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.setSortingEnabled(__sortingEnabled)
         self.groupBox_up.setTitle(_translate("MainWindow", "Fourier transform"))
-        self.pushButton_1.setText(_translate("MainWindow", "频域分析"))
-        self.pushButton_2.setText(_translate("MainWindow", "小波卷积"))
+        self.pushButton_1.setText(_translate("MainWindow", "Frequency analysis"))
+        self.pushButton_2.setText(_translate("MainWindow", "Derivatives calculation"))
+        self.pushButton_3.setText(_translate("MainWindow", "Reset"))
         self.groupBox_low.setTitle(_translate("MainWindow", "Gaussian wavelet transform"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
