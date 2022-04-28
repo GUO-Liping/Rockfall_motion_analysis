@@ -13,7 +13,7 @@ signal_a = np.array([1,2,3,4,5,6,7,8])
 '''
 signal_origin = signal_s
 max_level =3
-wp = pywt.WaveletPacket(data=signal_origin, wavelet='haar',mode='symmetric',maxlevel=max_level)
+wp = pywt.WaveletPacket(data=signal_origin, wavelet='bior2.8',mode='symmetric',maxlevel=max_level)
 
 #根据频段频率（freq）进行排序
 for i in range(max_level):
@@ -96,7 +96,7 @@ for i in [node.path for node in wp.get_level(max_level, 'freq')]:
 #第n层能量特征
 energy = []
 for i in re:
-    energy.append(np.linalg.norm(i,ord=2))
+    energy.append(pow(np.linalg.norm(i,ord=None),2))
 
 
 # 创建一个点数为 8 x 6 的窗口, 并设置分辨率为 80像素/每英寸
