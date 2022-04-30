@@ -21,10 +21,31 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_2.clicked.connect(self.draw_wavelet)
         self.pushButton_3.clicked.connect(self.reset_cmd)
 
+
+    def getTableData(self):
+        xData = []
+        yData = []
+        # nrows = self.tableWidget.rowCount()
+        row = 0
+        item0 = self.tableWidget.item(0, 0)
+        item1 = self.tableWidget.item(0, 1)
+
+        while(item0!=None and item1!=None):
+            text_str0 = item0.text()
+            text_str1 = item1.text()
+            xData.append(text_str0)
+            yData.append(text_str1)
+            row = row + 1
+            item0 = self.tableWidget.item(row, 0)
+            item1 = self.tableWidget.item(row, 1)
+        self.x1 = np.asarray(xData, dtype='float')
+        self.y1 = np.asarray(yData, dtype='float')
+
     def draw_fourier(self):
         try:
             x = [i + 1 for i in range(5)]  # x轴
             y = np.random.randint(0, 10, 5)  # y轴
+            self.getTableData()
 
             self.ax11.cla()
             self.ax11.set_title('Time-domain signal')
@@ -36,7 +57,8 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
             self.ax13.cla()
             self.ax13.set_title('Frequency energy distribute')
-            self.ax13.plot(x, y)
+            self.ax13.plot(self.x1, self.y1)
+
             self.canvas1.draw()  # 绘制
 
         except Exception as e:
