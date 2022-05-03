@@ -11,7 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
 import matplotlib.pyplot as plt
-from table_userdefine import MyTable
+from App_table_userdefine import MyTable
 
 
 class Ui_MainWindow(object):
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         self.tableWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
         self.tableWidget.setAutoScrollMargin(15)
-        self.tableWidget.setRowCount(100000)
+        self.tableWidget.setRowCount(10000)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(2)
         item = QtWidgets.QTableWidgetItem()

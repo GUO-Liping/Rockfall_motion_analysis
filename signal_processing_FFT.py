@@ -40,7 +40,7 @@ analy_atn = func_diff_2point(analy_t, analy_vtn)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # 这一步非常重要，根据定义，对信号进行离散Fourier变换后，零频率分量正是信号的平均值
-freq_data = fft(disp_updated - np.average(disp_updated))
+freq_data = np.fft.fft(disp_updated - np.average(disp_updated))
 # 如果想去掉零频率分量，需要在Fourier变换之前，原始信号减去其平均值，近似使其在零附近震荡
 # https://dsp.stackexchange.com/questions/16181/matlab-remove-the-frequency-at-zero-in-fft
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

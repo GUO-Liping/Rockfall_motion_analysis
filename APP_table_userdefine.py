@@ -51,10 +51,10 @@ class MyTable(QTableWidget):
                 indexes = self.selectedIndexes()
                 for index in indexes:
                     index = index
-                    break
+                    break  # 用于获得选中表格中的第一个单元格（左上角）
                 num_r, num_c = index.row(), index.column()
                 text_str = QApplication.clipboard().text()
-                ls_row = text_str.split('\n')
+                ls_row = text_str.split('\n')[0:-1]
                 ls_col = []
                 for row in ls_row:
                     ls_col.append(row.split('\t'))
@@ -66,7 +66,7 @@ class MyTable(QTableWidget):
                         item.setText((str(ls_col[row][column])))
                         self.setItem(row + num_r, column + num_c, item)
             except Exception as e:
-                print(e)
+                print('粘贴时发生错误')
 
         elif event.key() in (Qt.Key_Backspace, Qt.Key_Delete):
             try:

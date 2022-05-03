@@ -349,8 +349,8 @@ def func_update_disp(para_time, para_disp, target_freq):
 		for j in range (count):
 			disp_maxnum[s-count+j] = para_disp[i]+j*disp_step*np.random.normal(loc=1.0,scale=0.1)
 	disp_maxnum[-1] = para_disp[-1]
-
-	if max_freq%target_freq==0:
+	print('target_freq=',target_freq)
+	if abs(max_freq%target_freq) <= 1e-5:
 		timestep = 1 / target_freq
 		time_update = np.arange(para_time[0], para_time[-1], timestep)
 		disp_update = np.zeros_like(time_update)
