@@ -45,9 +45,9 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
     def getFFT_TableData(self):
         N = len(self.input_yData)
-        self.sample_rate = 1/(self.input_xData[2]-self.input_xData[1])
-        self.time_updated, self.disp_updated = func_update_disp(self.input_xData,self.input_yData, self.sample_rate)
-        freq_data = np.fft.fft(self.disp_updated - np.average(self.disp_updated))
+        self.sample_rate = 250
+        self.inputX_updated, self.inputY_updated = func_update_disp(self.input_xData,self.input_yData, self.sample_rate)
+        freq_data = np.fft.fft(self.inputY_updated - np.average(self.inputY_updated))
         self.frequencies = np.linspace (0.0, self.sample_rate/2, int (N/2), endpoint=True)
         self.amp_frequencies = 2/N * abs(freq_data[0:N//2])
 
@@ -83,11 +83,14 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
     def get_derivatives(self):
 
-        n_fit = int(0.15*len(self.disp_updated)) # 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-        n_add = int(0.30*len(self.disp_updated)) # 第二个常数，表示在信号首尾端需要添加的数据点数量
+        self.time_updated, self.disp_updated = func_update_disp(self.input_xData,self.input_yData, self.sample_rate)
 
-        time_updated, disp_updated = func_user_pad(self.time_updated, self.disp_updated, n_fit, 'before', n_add)
-        time_updated, disp_updated = func_user_pad(self.time_updated, self.disp_updated, n_fit, 'after',  n_add)
+        n_fit = int(0.05*len(self.disp_updated)) # 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+        n_add = int(0.10*len(self.disp_updated)) # 第二个常数，表示在信号首尾端需要添加的数据点数量
+
+        self.time_updated, self.disp_updated = func_user_pad(self.time_updated, self.disp_updated, n_fit, 'before', n_add)
+        self.time_updated, self.disp_updated = func_user_pad(self.time_updated, self.disp_updated, n_fit, 'after',  n_add)
+        
         fc_gauss0 = 1/(2*np.pi)*np.sqrt(2/np.pi)
         fc_gauss1 = 1/(1*np.pi)*np.sqrt(2/np.pi)
         fc_gauss2 = 4/(3*np.pi)*np.sqrt(2/np.pi)
@@ -95,9 +98,9 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
         # 处理试验捕捉的含噪信号
         # 对含噪信号进行高斯小波卷积
-        test_time = time_updated[n_add:-n_add]
-        test_utn = disp_updated
-        scale = 8
+        test_time = self.time_updated[n_add:-n_add]
+        test_utn = self.disp_updated
+        scale = 10
 
         test_utn_conv0 = func_conv_gauss_wave(test_utn, scale*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
         test_utn_conv1 = func_conv_gauss_wave(test_utn, scale*fc_gauss1/fc_gauss0)[1][n_add:-n_add]

@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
 	sample_rate = 500
 	# 此处的时间序列默认为从零开始
-	time_updated, disp_updated = func_update_disp(time_2000kJ_llr,disp_2000kJ_llr, sample_rate)  # 更新采样频率至同一水平
+	time_updated, disp_updated = func_update_disp(time_R7_impact1st,disp_R7_impact1st, sample_rate)  # 更新采样频率至同一水平
 	total_time = np.max(time_updated)
 
 	# scale = fc/f_pseudo*sample_rate，其中f_pseudo为傅里叶变换得到的伪频率
@@ -73,8 +73,8 @@ if __name__ == '__main__':
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
 	plt.plot(time_updated, disp_updated,'*')
 
-	n_fit = int(0.15*len(disp_updated))	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-	n_add = int(0.30*len(disp_updated))	# 第二个常数，表示在信号首尾端需要添加的数据点数量
+	n_fit = int(0.05*len(disp_updated))	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n_add = int(0.10*len(disp_updated))	# 第二个常数，表示在信号首尾端需要添加的数据点数量
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)
