@@ -3,6 +3,7 @@
 # NetPanelAnalysis_V1_0_2主函数
 
 import sys
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow,QTableWidget
 from App_Ui_signal_processing import Ui_MainWindow
 import matplotlib.pyplot as plt
@@ -22,6 +23,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_1.clicked.connect(self.draw_fourier)
         self.pushButton_2.clicked.connect(self.draw_wavelet)
         self.pushButton_3.clicked.connect(self.reset_cmd)
+        self.slider_scale.valueChanged.connect(self.set_scale)
 
 
     def getTableData(self):
@@ -100,12 +102,11 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         # 对含噪信号进行高斯小波卷积
         test_time = self.time_updated[n_add:-n_add]
         test_utn = self.disp_updated
-        scale = 10
 
-        test_utn_conv0 = func_conv_gauss_wave(test_utn, scale*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
-        test_utn_conv1 = func_conv_gauss_wave(test_utn, scale*fc_gauss1/fc_gauss0)[1][n_add:-n_add]
-        test_utn_conv2 = func_conv_gauss_wave(test_utn, scale*fc_gauss2/fc_gauss0)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
-        test_utn_conv3 = func_conv_gauss_wave(test_utn, scale*fc_gauss3/fc_gauss0)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+        test_utn_conv0 = func_conv_gauss_wave(test_utn, self.scale_parameter*fc_gauss0/fc_gauss0)[0][n_add:-n_add]
+        test_utn_conv1 = func_conv_gauss_wave(test_utn, self.scale_parameter*fc_gauss1/fc_gauss0)[1][n_add:-n_add]
+        test_utn_conv2 = func_conv_gauss_wave(test_utn, self.scale_parameter*fc_gauss2/fc_gauss0)[2][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
+        test_utn_conv3 = func_conv_gauss_wave(test_utn, self.scale_parameter*fc_gauss3/fc_gauss0)[3][n_add:-n_add]  # 手动生成高斯小波函数族,并与信号进行卷积
 
         # 实际信号并无真实解，需要对含噪信号高斯小波卷积结果反向积分，通过积分-微分之间的自洽性验证结果的准确性，积分时需要输入初始条件
         integral_test_utn_conv1 = func_integral_trapozoidal_rule(test_time, test_utn_conv1, 0)  # 梯形法则一次积分，初始条件为0。
@@ -187,6 +188,17 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         except Exception as e:
             print(e)
 
+    def set_scale(self, value):
+        try:
+        	font_time = QtGui.QFont()
+        	font_time.setFamily("Times New Roman")
+        	font_time.setPointSize(10)
+        	self.label_scale.setFont(font_time)
+        	self.label_scale.setText(str('Scale=')+str(value))
+        	self.scale_parameter = float(value)
+
+        except Exception as e:
+            print(e)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
