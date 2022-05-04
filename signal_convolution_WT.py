@@ -73,8 +73,8 @@ if __name__ == '__main__':
 	#time_updated1 = pywt.pad(time_updated0,(0,500),'zero')
 	plt.plot(time_updated, disp_updated,'*')
 
-	n_fit = int(0.05*len(disp_updated))	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
-	n_add = int(0.10*len(disp_updated))	# 第二个常数，表示在信号首尾端需要添加的数据点数量
+	n_fit = int(0.03*len(disp_updated))	# 第一个常数，表示用于待处理数据中可用于抛物线拟合的捕捉数据点数量
+	n_add = int(0.30*len(disp_updated))	# 第二个常数，表示在信号首尾端需要添加的数据点数量
 
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'before', n_add)
 	time_updated, disp_updated = func_user_pad(time_updated, disp_updated, n_fit, 'after',  n_add)

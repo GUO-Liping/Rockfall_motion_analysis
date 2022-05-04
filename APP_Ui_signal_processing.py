@@ -11,7 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
 import matplotlib.pyplot as plt
-from App_table_userdefine import MyTable
+from APP_table_userdefine import MyTable
 
 
 class Ui_MainWindow(object):
@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.tableWidget = MyTable(self.splitter)
-        self.tableWidget.setMinimumSize(QtCore.QSize(200, 700))
+        self.tableWidget.setMinimumSize(QtCore.QSize(245, 700))
         self.tableWidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.tableWidget.setBaseSize(QtCore.QSize(200, 2000))
         self.tableWidget.setLineWidth(1)
@@ -126,7 +126,7 @@ class Ui_MainWindow(object):
         #horizontal_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.horizontalLayout.addWidget(self.slider_scale)
 
-        self.label_scale = QtWidgets.QLabel('Scale = 0', self)
+        self.label_scale = QtWidgets.QLabel('Scale = 2', self)
         self.label_scale.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         self.label_scale.setMinimumSize(QtCore.QSize(100, 35))
         self.label_scale.setMaximumSize(QtCore.QSize(100, 35))

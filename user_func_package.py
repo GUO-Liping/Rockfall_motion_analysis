@@ -43,25 +43,25 @@ def func_freqs_divide(signal_data):
 	power_signal = pow(signal_data,2)
 
 	total_energy = np.sum(power_signal)
-	print(total_energy - pow(np.linalg.norm(signal_data,ord=2),2))
+	#print(total_energy - pow(np.linalg.norm(signal_data,ord=2),2))
 	sum_energy = 0
 	i50, i90, i99 = 0,0,0
 	for i in range(n):
 		sum_energy = np.sum(power_signal[:i+1])
 		ratio_s = sum_energy/total_energy
-		print('ratio_s=',ratio_s)
+		#print('ratio_s=',ratio_s)
 		if ratio_s*100>=0 and ratio_s*100<=66:
 			i50 = i
-			print('i50=',i50)
-			print('ratio_s50=',ratio_s)
+			#print('i50=',i50)
+			#print('ratio_s50=',ratio_s)
 		elif ratio_s*100>66 and ratio_s*100<=90:
 			i90 = i
-			print('i90=',i90)
-			print('ratio_s90=',ratio_s)
+			#print('i90=',i90)
+			#print('ratio_s90=',ratio_s)
 		elif ratio_s*100>90 and ratio_s*100<=99.2:
 			i99 = i
-			print('i99=',i99)
-			print('ratio_s99=',ratio_s)
+			#print('i99=',i99)
+			#print('ratio_s99=',ratio_s)
 		else:
 			pass
 	return i50, i90, i99
@@ -134,7 +134,7 @@ def func_analytical_signal_impact(timestep):
 	vt_array = np.concatenate((vt_I,vt_II[1:]),axis = 0)
 	at_array = np.concatenate((at_I,at_II[1:]),axis = 0)
 	jt_array = np.concatenate((jt_I,jt_II[1:]),axis = 0)
-	print('jt_I[-1]=',jt_II[-1],'jt_II[0]=',jt_II[0])
+	#print('jt_I[-1]=',jt_II[-1],'jt_II[0]=',jt_II[0])
 	
 	#plt.subplot(1,4,1)
 	#plt.plot(t_array, ut_array)
@@ -349,7 +349,7 @@ def func_update_disp(para_time, para_disp, target_freq):
 		for j in range (count):
 			disp_maxnum[s-count+j] = para_disp[i]+j*disp_step*np.random.normal(loc=1.0,scale=0.1)
 	disp_maxnum[-1] = para_disp[-1]
-	print('target_freq=',target_freq)
+	#print('target_freq=',target_freq)
 	if abs(max_freq%target_freq) <= 1e-5:
 		timestep = 1 / target_freq
 		time_update = np.arange(para_time[0], para_time[-1], timestep)
@@ -410,7 +410,7 @@ def func_BinarySearch_DTW(source_array,convol_array, para_threshold):
 			count = count + 1
 			# print('It is the',count,'-th Iteration')
 
-		print('It is the',count,'-th Iteration')
+		#print('It is the',count,'-th Iteration')
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
 
@@ -472,7 +472,7 @@ def func_BinarySearch_ED(source,convol, para_threshold):
 		minDist = np.amin(dist)
 		minDistIndex = np.argmin(dist)
 		error = up-low
-	print('It is the',count,'-th Iteration, ', 'error = ', error)
+	#print('It is the',count,'-th Iteration, ', 'error = ', error)
 	Amp = (low+up)/2
 	Dist = minDist
 	return Amp, Dist, convol_move
