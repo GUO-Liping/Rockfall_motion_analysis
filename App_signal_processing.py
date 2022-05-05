@@ -69,12 +69,14 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 			print(e)
 
 	def getFFT_TableData(self):
-		N = len(self.input_yData)
 		self.sample_rate = 250
 		self.inputX_updated, self.inputY_updated = func_update_disp(self.input_xData,self.input_yData, self.sample_rate)
-		freq_data = np.fft.fft(self.inputY_updated - np.average(self.inputY_updated))
-		self.frequencies = np.linspace (0.0, self.sample_rate/2, int (N/2), endpoint=True)
-		self.amp_frequencies = 2/N * abs(freq_data[0:N//2])
+		#freq_data = np.fft.rfft(self.inputY_updated - np.average(self.inputY_updated),)
+		N = len(self.inputY_updated)
+		self.amp_frequencies = abs(np.fft.rfft(self.inputY_updated - np.average(self.inputY_updated)))
+		self.frequencies = np.fft.rfftfreq(N, d=1./self.sample_rate)
+		#self.frequencies = np.linspace (0.0, self.sample_rate/2, int (N/2), endpoint=True)
+		# self.amp_frequencies = 2/N * abs(freq_data[0:N//2])
 
 	def get_freqsEnergy(self):
 
