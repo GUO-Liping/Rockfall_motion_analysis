@@ -11,7 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
 import matplotlib.pyplot as plt
-from APP_table_userdefine import MyTable
+from App_table_userdefine import MyTable
 
 
 class Ui_MainWindow(object):

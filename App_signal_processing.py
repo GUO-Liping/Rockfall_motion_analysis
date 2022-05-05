@@ -5,7 +5,7 @@
 import sys
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QMainWindow,QTableWidget,QMessageBox
-from APP_Ui_signal_processing import Ui_MainWindow
+from App_Ui_signal_processing import Ui_MainWindow
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
@@ -19,7 +19,8 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		super(MyWindow, self).__init__()
 		self.setupUi(self)
-
+		self.setWindowTitle('Rockfall motion analysis v1.1.2')
+		self.setWindowIcon(QtGui.QIcon('favicon.ico'))
 		self.pushButton_1.clicked.connect(self.draw_fourier)
 		self.pushButton_2.clicked.connect(self.draw_wavelet)
 		self.pushButton_3.clicked.connect(self.reset_cmd)
