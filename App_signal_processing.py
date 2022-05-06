@@ -70,13 +70,13 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 			print(e)
 
 	def getFFT_TableData(self):
-		self.sample_rate = 250
+		self.sample_rate = 500
 		self.inputX_updated, self.inputY_updated = func_update_disp(self.input_xData,self.input_yData, self.sample_rate)
 		#freq_data = np.fft.rfft(self.inputY_updated - np.average(self.inputY_updated),)
 		N = len(self.inputY_updated)
-		self.amp_frequencies = abs(np.fft.rfft(self.inputY_updated - np.average(self.inputY_updated)))
+		self.amp_frequencies = abs(np.fft.rfft(self.inputY_updated - np.average(self.inputY_updated),norm='forward'))  # DFT normalization (norm = 'forward')
 		self.frequencies = np.fft.rfftfreq(N, d=1./self.sample_rate)
-		#self.frequencies = np.linspace (0.0, self.sample_rate/2, int (N/2), endpoint=True)
+		#self.frequencies = np.linspace (0.0, self.sample_rate/2, N//2+1, endpoint=True)
 		# self.amp_frequencies = 2/N * abs(freq_data[0:N//2])
 
 	def get_freqsEnergy(self):
@@ -85,7 +85,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 		j_index = 5**i_index
 
 		i50, i90, i99 = func_freqs_divide(self.amp_frequencies)
-		f_i = np.array([0.001,self.frequencies[i50],self.frequencies[i90],self.frequencies[i99],self.sample_rate])
+		f_i = np.array([0.001,self.frequencies[i50],self.frequencies[i90],self.frequencies[i99],self.sample_rate/2])
 		#fc_g1 = 0.254  # 一阶高斯小波的中心频率
 		#fc_g2 = 0.339  # 二阶高斯小波的中心频率
 		#fc_g = fc_g2  # 高斯小波中心频率
@@ -96,6 +96,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 		i_1 = np.where((self.frequencies>self.frequencies[i50]) & (self.frequencies<=self.frequencies[i90]))
 		i_2 = np.where((self.frequencies>self.frequencies[i90]) & (self.frequencies<=self.frequencies[i99]))
 		i_3 = np.where((self.frequencies>self.frequencies[i99]))
+		
 		E_0 = np.sum(pow(self.amp_frequencies[i_0],2)) / E_total*100
 		E_1 = np.sum(pow(self.amp_frequencies[i_1],2)) / E_total*100
 		E_2 = np.sum(pow(self.amp_frequencies[i_2],2)) / E_total*100

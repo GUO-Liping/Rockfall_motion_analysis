@@ -58,7 +58,7 @@ def func_freqs_divide(signal_data):
 			i90 = i
 			#print('i90=',i90)
 			#print('ratio_s90=',ratio_s)
-		elif ratio_s*100>90 and ratio_s*100<=99.2:
+		elif ratio_s*100>90 and ratio_s*100<=99.0:
 			i99 = i
 			#print('i99=',i99)
 			#print('ratio_s99=',ratio_s)
