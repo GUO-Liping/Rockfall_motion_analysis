@@ -19,7 +19,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		super(MyWindow, self).__init__()
 		self.setupUi(self)
-		self.setWindowTitle('Rockfall motion analysis v1.1.2')
+		self.setWindowTitle('Rockfall motion analysis v1.0')
 		self.setWindowIcon(QtGui.QIcon('favicon.ico'))
 		self.pushButton_1.clicked.connect(self.draw_fourier)
 		self.pushButton_2.clicked.connect(self.draw_wavelet)
