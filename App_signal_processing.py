@@ -11,10 +11,6 @@ import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FC
 from user_func_package import *
 
-#from PyQt5.QtWidgets import *
-#from PyQt5.QtCore import *
-
-
 class MyWindow(QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		super(MyWindow, self).__init__()
